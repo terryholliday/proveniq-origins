@@ -33,6 +33,8 @@ import TraumaCyclesManage from './pages/TraumaCyclesManage'
 import SongsManage from './pages/SongsManage'
 import UserGuide from './pages/UserGuide'
 import NoahWizardPage from './pages/NoahWizardPage'
+import MessengerImport from './pages/MessengerImport'
+import NoahInterviewer from './components/NoahInterviewer'
 
 function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -112,6 +114,8 @@ function App() {
           <Route path="/manage/songs" element={<SongsManage />} />
           <Route path="/guide" element={<UserGuide />} />
           <Route path="/wizard" element={<NoahWizardPage />} />
+          <Route path="/import/messenger" element={<MessengerImport />} />
+          <Route path="/interview" element={<NoahInterviewer />} />
         </Routes>
       </Layout>
     </BrowserRouter>
