@@ -47,6 +47,14 @@ eventRoutes.get('/', async (req: Request, res: Response) => {
       include: {
         chapter: true,
         traumaCycle: true,
+        _count: {
+          select: {
+            personLinks: true,
+            songLinks: true,
+            artifactLinks: true,
+            synchronicityLinks: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -64,7 +72,7 @@ eventRoutes.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/events/:id - Get single event
+// GET /api/events/:id - Get single event with all linked entities
 eventRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -74,10 +82,18 @@ eventRoutes.get('/:id', async (req: Request, res: Response) => {
       include: {
         chapter: true,
         traumaCycle: true,
-        persons: true,
-        songs: true,
-        artifacts: true,
-        synchronicities: true,
+        personLinks: {
+          include: { person: true },
+        },
+        songLinks: {
+          include: { song: true },
+        },
+        artifactLinks: {
+          include: { artifact: true },
+        },
+        synchronicityLinks: {
+          include: { synchronicity: true },
+        },
       },
     });
 
@@ -85,10 +101,17 @@ eventRoutes.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    res.json({
+    // Transform to flatten linked entities for easier frontend consumption
+    const transformedEvent = {
       ...event,
       emotionTags: JSON.parse(event.emotionTags),
-    });
+      persons: event.personLinks.map((link) => link.person),
+      songs: event.songLinks.map((link) => link.song),
+      artifacts: event.artifactLinks.map((link) => link.artifact),
+      synchronicities: event.synchronicityLinks.map((link) => link.synchronicity),
+    };
+
+    res.json(transformedEvent);
   } catch (error) {
     console.error('Error fetching event:', error);
     res.status(500).json({ error: 'Failed to fetch event' });

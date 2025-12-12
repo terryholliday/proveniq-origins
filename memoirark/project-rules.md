@@ -509,4 +509,105 @@ At that point, clearly state:
 - What can be done in Phase 2 (without implementing it),
 and wait for explicit user instructions.
 
+================================================================
+PHASE 2 IMPLEMENTATION DOCUMENTATION
+================================================================
+Phase 2 was implemented on December 11, 2025.
+
+## Data Model — Phase 2 Additions
+
+### Explicit Join Tables
+All many-to-many relations now use explicit join tables with their own IDs:
+- `EventPerson` (Event ↔ Person)
+- `EventSong` (Event ↔ Song)
+- `EventArtifact` (Event ↔ Artifact)
+- `EventSynchronicity` (Event ↔ Synchronicity)
+- `ArtifactPerson` (Artifact ↔ Person)
+
+Each join table has:
+- `id` (cuid)
+- Foreign keys with `onDelete: Cascade`
+- `createdAt` timestamp
+- Unique constraint on the pair of foreign keys
+
+### New Fields Added
+- **Person.isPrimary** (Boolean, default false) — Flag for central people
+- **Event.isKeystone** (Boolean, default false) — Flag for pivotal events
+- **Artifact.importedFrom** (String, nullable) — Notes about import pipeline
+- **Synchronicity.symbolicTag** (String, nullable) — e.g., "raccoon", "train", "storm"
+
+## Backend API — Phase 2 Endpoints
+
+### Person CRUD
+- `GET /api/persons` — List all (with optional `?search=` query)
+- `GET /api/persons/:id` — Get single with linked events and artifacts
+- `POST /api/persons` — Create
+- `PUT /api/persons/:id` — Update
+- `DELETE /api/persons/:id` — Hard delete
+
+### Artifact CRUD
+- `GET /api/artifacts` — List all (with optional `?type=` filter)
+- `GET /api/artifacts/:id` — Get single with linked events and people
+- `POST /api/artifacts` — Create
+- `PUT /api/artifacts/:id` — Update
+- `DELETE /api/artifacts/:id` — Hard delete
+
+### Synchronicity CRUD
+- `GET /api/synchronicities` — List all (with optional `?type=` filter)
+- `GET /api/synchronicities/:id` — Get single with linked events
+- `POST /api/synchronicities` — Create
+- `PUT /api/synchronicities/:id` — Update
+- `DELETE /api/synchronicities/:id` — Hard delete
+
+### Linking Endpoints
+All linking is explicit via POST/DELETE:
+- `POST /api/events/:eventId/persons/:personId` — Link person to event
+- `DELETE /api/events/:eventId/persons/:personId` — Unlink
+- `POST /api/events/:eventId/songs/:songId` — Link song to event
+- `DELETE /api/events/:eventId/songs/:songId` — Unlink
+- `POST /api/events/:eventId/artifacts/:artifactId` — Link artifact to event
+- `DELETE /api/events/:eventId/artifacts/:artifactId` — Unlink
+- `POST /api/events/:eventId/synchronicities/:synchronicityId` — Link sync to event
+- `DELETE /api/events/:eventId/synchronicities/:synchronicityId` — Unlink
+- `POST /api/artifacts/:artifactId/persons/:personId` — Link person to artifact
+- `DELETE /api/artifacts/:artifactId/persons/:personId` — Unlink
+
+## Frontend — Phase 2 Pages
+
+### Navigation
+Added navigation items: People, Artifacts, Synchronicities
+
+### Event Detail View
+Shows all linked entities with ability to:
+- Add existing Person/Song/Artifact/Synchronicity via dropdown
+- Remove links via X button
+- Navigate to linked entity detail pages
+
+### People Module
+- **List**: Table with name, role, relationship type, event count
+- **Detail**: Person info + linked events + linked artifacts
+- **Form**: Create/edit with isPrimary checkbox
+
+### Artifacts Module
+- **List**: Table with type, description, source, event count
+- **Detail**: Artifact info + transcribed text + linked events/people
+- **Form**: Create/edit with type dropdown
+
+### Synchronicities Module
+- **List**: Table with date, type, symbolic tag, event count
+- **Detail**: Synchronicity info + description + linked events
+- **Form**: Create/edit with type dropdown and symbolic tag
+
+## Architectural Decisions
+
+### Delete Strategy
+All deletes are **hard deletes**. Join table entries cascade automatically.
+
+### Epilogue Representation
+Epilogue is stored as Chapter number = 14 (documented in Phase 1).
+
+### No AI Inference
+Phase 2 maintains the Golden Rule: no AI summarization or auto-linking.
+All links are created explicitly by user action.
+
 END OF SYSTEM PROMPT

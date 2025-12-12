@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { statsApi } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Calendar, BookOpen, Zap, Music } from 'lucide-react'
+import { Calendar, BookOpen, Zap, Music, Users, FileText, Sparkles } from 'lucide-react'
 
 export default function Dashboard() {
   const { data: stats, isLoading, error } = useQuery({
@@ -31,6 +31,24 @@ export default function Dashboard() {
       value: stats?.events ?? 0,
       icon: Calendar,
       description: 'Life events recorded',
+    },
+    {
+      title: 'People',
+      value: stats?.persons ?? 0,
+      icon: Users,
+      description: 'People in your story',
+    },
+    {
+      title: 'Artifacts',
+      value: stats?.artifacts ?? 0,
+      icon: FileText,
+      description: 'Documents & media',
+    },
+    {
+      title: 'Synchronicities',
+      value: stats?.synchronicities ?? 0,
+      icon: Sparkles,
+      description: 'Dreams & omens',
     },
     {
       title: 'Chapters',
