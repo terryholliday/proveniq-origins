@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import Layout from './components/Layout'
+import WelcomeModal from './components/WelcomeModal'
+import OnboardingTour, { useTourState } from './components/OnboardingTour'
 import Dashboard from './pages/Dashboard'
 import EventList from './pages/EventList'
 import EventForm from './pages/EventForm'
@@ -19,6 +21,15 @@ import Search from './pages/Search'
 import ChaptersList from './pages/ChaptersList'
 import ChapterNarrative from './pages/ChapterNarrative'
 import Export from './pages/Export'
+import TagsList from './pages/TagsList'
+import TagDetail from './pages/TagDetail'
+import CollectionsList from './pages/CollectionsList'
+import CollectionDetail from './pages/CollectionDetail'
+import QueryBuilder from './pages/QueryBuilder'
+import AudioUpload from './pages/AudioUpload'
+import ChaptersManage from './pages/ChaptersManage'
+import TraumaCyclesManage from './pages/TraumaCyclesManage'
+import SongsManage from './pages/SongsManage'
 
 function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -26,6 +37,18 @@ function App() {
     if (stored === 'light' || stored === 'dark') return stored
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
+
+  const [showWelcome, setShowWelcome] = useState(() => {
+    const tourCompleted = localStorage.getItem('memoirark-tour-completed')
+    if (!tourCompleted) return false
+    const lastDismissed = localStorage.getItem('memoirark-welcome-dismissed')
+    if (!lastDismissed) return true
+    const dismissedTime = new Date(lastDismissed).getTime()
+    const hoursSince = (Date.now() - dismissedTime) / (1000 * 60 * 60)
+    return hoursSince > 4
+  })
+
+  const { showTour, endTour } = useTourState()
 
   useEffect(() => {
     const root = document.documentElement
@@ -41,8 +64,15 @@ function App() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light')
   }
 
+  const handleCloseWelcome = () => {
+    setShowWelcome(false)
+    localStorage.setItem('memoirark-welcome-dismissed', new Date().toISOString())
+  }
+
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      {showTour && <OnboardingTour onComplete={endTour} />}
+      {showWelcome && !showTour && <WelcomeModal onClose={handleCloseWelcome} />}
       <Layout theme={theme} toggleTheme={toggleTheme}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
@@ -67,6 +97,15 @@ function App() {
           <Route path="/chapters" element={<ChaptersList />} />
           <Route path="/chapters/:id" element={<ChapterNarrative />} />
           <Route path="/export" element={<Export />} />
+          <Route path="/tags" element={<TagsList />} />
+          <Route path="/tags/:id" element={<TagDetail />} />
+          <Route path="/collections" element={<CollectionsList />} />
+          <Route path="/collections/:id" element={<CollectionDetail />} />
+          <Route path="/query" element={<QueryBuilder />} />
+          <Route path="/upload" element={<AudioUpload />} />
+          <Route path="/manage/chapters" element={<ChaptersManage />} />
+          <Route path="/manage/trauma-cycles" element={<TraumaCyclesManage />} />
+          <Route path="/manage/songs" element={<SongsManage />} />
         </Routes>
       </Layout>
     </BrowserRouter>

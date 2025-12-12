@@ -14,6 +14,9 @@ import { timelineRoutes } from './routes/timeline';
 import { searchRoutes } from './routes/search';
 import { narrativeRoutes } from './routes/narrative';
 import { exportRoutes } from './routes/export';
+import { tagRoutes } from './routes/tags';
+import { collectionRoutes } from './routes/collections';
+import { uploadRoutes } from './routes/uploads';
 
 dotenv.config();
 
@@ -38,6 +41,9 @@ app.use('/api/timeline', timelineRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/narrative', narrativeRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/tags', tagRoutes);
+app.use('/api/collections', collectionRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

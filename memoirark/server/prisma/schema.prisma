@@ -19,16 +19,17 @@ model Chapter {
 }
 
 model Person {
-  id               String           @id @default(cuid())
+  id               String             @id @default(cuid())
   name             String
-  role             String           @default("")
-  relationshipType String           @default("")
-  notes            String           @default("")
-  isPrimary        Boolean          @default(false)
+  role             String             @default("")
+  relationshipType String             @default("")
+  notes            String             @default("")
+  isPrimary        Boolean            @default(false)
   eventLinks       EventPerson[]
   artifactLinks    ArtifactPerson[]
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  collectionLinks  CollectionPerson[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 }
 
 model Song {
@@ -71,22 +72,25 @@ model Event {
   songLinks          EventSong[]
   artifactLinks      EventArtifact[]
   synchronicityLinks EventSynchronicity[]
+  tagLinks           EventTag[]
+  collectionLinks    CollectionEvent[]
   createdAt          DateTime               @default(now())
   updatedAt          DateTime               @updatedAt
 }
 
 model Artifact {
-  id               String           @id @default(cuid())
+  id               String              @id @default(cuid())
   type             String
-  sourceSystem     String           @default("")
-  sourcePathOrUrl  String           @default("")
-  shortDescription String           @default("")
+  sourceSystem     String              @default("")
+  sourcePathOrUrl  String              @default("")
+  shortDescription String              @default("")
   transcribedText  String?
   importedFrom     String?
   eventLinks       EventArtifact[]
   personLinks      ArtifactPerson[]
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  collectionLinks  CollectionArtifact[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 }
 
 model Synchronicity {
@@ -157,4 +161,74 @@ model ArtifactPerson {
   createdAt  DateTime @default(now())
 
   @@unique([artifactId, personId])
+}
+
+// ============================================
+// PHASE 4 — TAGS & COLLECTIONS
+// ============================================
+
+model Tag {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String     @default("")
+  eventLinks  EventTag[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Collection {
+  id            String               @id @default(cuid())
+  name          String
+  description   String               @default("")
+  eventLinks    CollectionEvent[]
+  artifactLinks CollectionArtifact[]
+  personLinks   CollectionPerson[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+}
+
+// Phase 4 Join Tables
+
+model EventTag {
+  id        String   @id @default(cuid())
+  eventId   String
+  tagId     String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, tagId])
+}
+
+model CollectionEvent {
+  id           String     @id @default(cuid())
+  collectionId String
+  eventId      String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  event        Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([collectionId, eventId])
+}
+
+model CollectionArtifact {
+  id           String     @id @default(cuid())
+  collectionId String
+  artifactId   String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  artifact     Artifact   @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([collectionId, artifactId])
+}
+
+model CollectionPerson {
+  id           String     @id @default(cuid())
+  collectionId String
+  personId     String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  person       Person     @relation(fields: [personId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([collectionId, personId])
 }

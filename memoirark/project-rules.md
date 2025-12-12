@@ -694,4 +694,111 @@ Events grouped by year for visual clarity.
 Phase 3 maintains the Golden Rule: no AI summarization or interpretation.
 All search is literal string matching, no semantic search.
 
+================================================================
+PHASE 4 IMPLEMENTATION DOCUMENTATION
+================================================================
+Phase 4 was implemented on December 12, 2025.
+
+## Phase 4 Focus
+- Tags for categorical event labeling
+- Collections for custom groupings
+- Advanced deterministic search with multiple filters
+- Query Builder UI for power users
+
+## Data Model — Phase 4 Additions
+
+### Tag Model
+- `id` (cuid)
+- `name` (string, unique)
+- `description` (string, optional)
+- Relations: many-to-many with Event via EventTag
+
+### Collection Model
+- `id` (cuid)
+- `name` (string)
+- `description` (string, optional)
+- Relations: many-to-many with Event, Artifact, Person
+- Collections do NOT auto-update or self-generate
+
+### Join Tables
+- `EventTag` — Event ↔ Tag
+- `CollectionEvent` — Collection ↔ Event
+- `CollectionArtifact` — Collection ↔ Artifact
+- `CollectionPerson` — Collection ↔ Person
+
+## Backend API — Phase 4 Endpoints
+
+### Tag CRUD
+- `GET /api/tags` — List all tags
+- `GET /api/tags/:id` — Get tag with linked events
+- `POST /api/tags` — Create tag
+- `PUT /api/tags/:id` — Update tag
+- `DELETE /api/tags/:id` — Delete tag
+- `POST /api/tags/:tagId/events/:eventId` — Link tag to event
+- `DELETE /api/tags/:tagId/events/:eventId` — Unlink
+
+### Collection CRUD
+- `GET /api/collections` — List all collections
+- `GET /api/collections/:id` — Get with all linked items
+- `POST /api/collections` — Create collection
+- `PUT /api/collections/:id` — Update collection
+- `DELETE /api/collections/:id` — Delete collection
+- `POST /api/collections/:id/events/:eventId` — Add event
+- `DELETE /api/collections/:id/events/:eventId` — Remove event
+- `POST /api/collections/:id/artifacts/:artifactId` — Add artifact
+- `DELETE /api/collections/:id/artifacts/:artifactId` — Remove artifact
+- `POST /api/collections/:id/persons/:personId` — Add person
+- `DELETE /api/collections/:id/persons/:personId` — Remove person
+
+### Enhanced Search
+`GET /api/search` now supports:
+- `in` parameter: title, summary, notes, or all
+- `tagId` filter
+- `personId` filter
+- `dateRange` filter (YYYY-MM-DD..YYYY-MM-DD)
+
+### Structured Filter
+`POST /api/search/filter` — Multi-filter query builder
+Payload:
+- `text`, `searchIn[]`
+- `chapterIds[]`, `traumaCycleIds[]`
+- `personIds[]`, `tagIds[]`
+- `dateRange: { start, end }`
+- `isKeystone`, `hasArtifacts`, `hasSynchronicities`
+- `limit`
+
+## Frontend — Phase 4 Pages
+
+### Tags (`/tags`, `/tags/:id`)
+- List view with create/edit inline
+- Detail view showing tagged events
+
+### Collections (`/collections`, `/collections/:id`)
+- Grid view of all collections
+- Detail view with add/remove UI for events, artifacts, persons
+
+### Query Builder (`/query`)
+- Multi-filter form with checkboxes
+- Text search with field selection
+- Date range picker
+- Chapter, trauma cycle, person, tag filters
+- Special filters: keystone, has artifacts, has synchronicities
+- Results displayed in-page
+
+## Navigation Updates
+Added: Tags, Collections, Query
+
+## Architectural Decisions
+
+### Tag Uniqueness
+Tag names are unique to prevent duplicates.
+
+### Collection Manual Management
+Collections are explicitly managed by user action only.
+No automatic population or smart suggestions.
+
+### Search Determinism
+All search uses SQLite LIKE queries (substring matching).
+No semantic expansion, synonyms, or AI-driven ranking.
+
 END OF SYSTEM PROMPT

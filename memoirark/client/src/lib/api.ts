@@ -176,10 +176,47 @@ export const eventsApi = {
   },
 }
 
+export interface ChapterCreateInput {
+  number: number
+  title: string
+  yearsCovered?: number[]
+  summary?: string
+}
+
+export interface TraumaCycleCreateInput {
+  label: string
+  startYear?: number | null
+  endYear?: number | null
+  description?: string
+}
+
+export interface SongCreateInput {
+  title: string
+  artist: string
+  era?: string
+  keyLyric?: string
+  notes?: string
+}
+
 export const chaptersApi = {
   getAll: async (): Promise<Chapter[]> => {
     const { data } = await api.get('/chapters')
     return data
+  },
+  getById: async (id: string): Promise<Chapter> => {
+    const { data } = await api.get(`/chapters/${id}`)
+    return data
+  },
+  create: async (chapter: ChapterCreateInput): Promise<Chapter> => {
+    const { data } = await api.post('/chapters', chapter)
+    return data
+  },
+  update: async (id: string, chapter: Partial<ChapterCreateInput>): Promise<Chapter> => {
+    const { data } = await api.put(`/chapters/${id}`, chapter)
+    return data
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/chapters/${id}`)
   },
 }
 
@@ -188,12 +225,42 @@ export const traumaCyclesApi = {
     const { data } = await api.get('/trauma-cycles')
     return data
   },
+  getById: async (id: string): Promise<TraumaCycle> => {
+    const { data } = await api.get(`/trauma-cycles/${id}`)
+    return data
+  },
+  create: async (tc: TraumaCycleCreateInput): Promise<TraumaCycle> => {
+    const { data } = await api.post('/trauma-cycles', tc)
+    return data
+  },
+  update: async (id: string, tc: Partial<TraumaCycleCreateInput>): Promise<TraumaCycle> => {
+    const { data } = await api.put(`/trauma-cycles/${id}`, tc)
+    return data
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/trauma-cycles/${id}`)
+  },
 }
 
 export const songsApi = {
   getAll: async (): Promise<Song[]> => {
     const { data } = await api.get('/songs')
     return data
+  },
+  getById: async (id: string): Promise<Song & { events: Event[] }> => {
+    const { data } = await api.get(`/songs/${id}`)
+    return data
+  },
+  create: async (song: SongCreateInput): Promise<Song> => {
+    const { data } = await api.post('/songs', song)
+    return data
+  },
+  update: async (id: string, song: Partial<SongCreateInput>): Promise<Song> => {
+    const { data } = await api.put(`/songs/${id}`, song)
+    return data
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/songs/${id}`)
   },
 }
 
@@ -342,6 +409,181 @@ export const exportApi = {
   },
   downloadMarkdown: () => {
     window.open('/api/export/markdown', '_blank')
+  },
+}
+
+// Phase 4 APIs
+export interface Tag {
+  id: string
+  name: string
+  description: string
+  _count?: { eventLinks: number }
+  events?: Event[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface TagCreateInput {
+  name: string
+  description?: string
+}
+
+export interface Collection {
+  id: string
+  name: string
+  description: string
+  _count?: { eventLinks: number; artifactLinks: number; personLinks: number }
+  events?: Event[]
+  artifacts?: Artifact[]
+  persons?: Person[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CollectionCreateInput {
+  name: string
+  description?: string
+}
+
+export interface FilterPayload {
+  text?: string
+  searchIn?: string[]
+  chapterIds?: string[]
+  traumaCycleIds?: string[]
+  personIds?: string[]
+  tagIds?: string[]
+  dateRange?: { start?: string; end?: string }
+  isKeystone?: boolean
+  hasArtifacts?: boolean
+  hasSynchronicities?: boolean
+  limit?: number
+}
+
+export interface FilterResults {
+  totalResults: number
+  filters: FilterPayload
+  results: Event[]
+}
+
+export const tagsApi = {
+  getAll: async (): Promise<Tag[]> => {
+    const { data } = await api.get('/tags')
+    return data
+  },
+  getById: async (id: string): Promise<Tag> => {
+    const { data } = await api.get(`/tags/${id}`)
+    return data
+  },
+  create: async (tag: TagCreateInput): Promise<Tag> => {
+    const { data } = await api.post('/tags', tag)
+    return data
+  },
+  update: async (id: string, tag: Partial<TagCreateInput>): Promise<Tag> => {
+    const { data } = await api.put(`/tags/${id}`, tag)
+    return data
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/tags/${id}`)
+  },
+  linkToEvent: async (tagId: string, eventId: string) => {
+    const { data } = await api.post(`/tags/${tagId}/events/${eventId}`)
+    return data
+  },
+  unlinkFromEvent: async (tagId: string, eventId: string) => {
+    await api.delete(`/tags/${tagId}/events/${eventId}`)
+  },
+}
+
+export const collectionsApi = {
+  getAll: async (): Promise<Collection[]> => {
+    const { data } = await api.get('/collections')
+    return data
+  },
+  getById: async (id: string): Promise<Collection> => {
+    const { data } = await api.get(`/collections/${id}`)
+    return data
+  },
+  create: async (collection: CollectionCreateInput): Promise<Collection> => {
+    const { data } = await api.post('/collections', collection)
+    return data
+  },
+  update: async (id: string, collection: Partial<CollectionCreateInput>): Promise<Collection> => {
+    const { data } = await api.put(`/collections/${id}`, collection)
+    return data
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/collections/${id}`)
+  },
+  addEvent: async (collectionId: string, eventId: string) => {
+    const { data } = await api.post(`/collections/${collectionId}/events/${eventId}`)
+    return data
+  },
+  removeEvent: async (collectionId: string, eventId: string) => {
+    await api.delete(`/collections/${collectionId}/events/${eventId}`)
+  },
+  addArtifact: async (collectionId: string, artifactId: string) => {
+    const { data } = await api.post(`/collections/${collectionId}/artifacts/${artifactId}`)
+    return data
+  },
+  removeArtifact: async (collectionId: string, artifactId: string) => {
+    await api.delete(`/collections/${collectionId}/artifacts/${artifactId}`)
+  },
+  addPerson: async (collectionId: string, personId: string) => {
+    const { data } = await api.post(`/collections/${collectionId}/persons/${personId}`)
+    return data
+  },
+  removePerson: async (collectionId: string, personId: string) => {
+    await api.delete(`/collections/${collectionId}/persons/${personId}`)
+  },
+}
+
+export const filterApi = {
+  filter: async (payload: FilterPayload): Promise<FilterResults> => {
+    const { data } = await api.post('/search/filter', payload)
+    return data
+  },
+}
+
+// Audio Upload API
+export interface UploadResult {
+  artifact: Artifact
+  file: {
+    filename: string
+    originalName: string
+    size: number
+    mimetype: string
+  }
+}
+
+export interface BatchUploadResult {
+  count: number
+  artifacts: Artifact[]
+}
+
+export const uploadsApi = {
+  uploadAudio: async (file: File, shortDescription?: string, sourceSystem?: string): Promise<UploadResult> => {
+    const formData = new FormData()
+    formData.append('audio', file)
+    if (shortDescription) formData.append('shortDescription', shortDescription)
+    if (sourceSystem) formData.append('sourceSystem', sourceSystem)
+    
+    const { data } = await api.post('/uploads/audio', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
+  },
+  uploadAudioBatch: async (files: File[], sourceSystem?: string): Promise<BatchUploadResult> => {
+    const formData = new FormData()
+    files.forEach((file) => formData.append('audio', file))
+    if (sourceSystem) formData.append('sourceSystem', sourceSystem)
+    
+    const { data } = await api.post('/uploads/audio/batch', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
+  },
+  getAudioUrl: (filename: string): string => {
+    return `${api.defaults.baseURL}/uploads/${filename}`
   },
 }
 

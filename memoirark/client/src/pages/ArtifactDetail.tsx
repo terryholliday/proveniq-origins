@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { artifactsApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Pencil, Calendar, Users } from 'lucide-react'
+import { ArrowLeft, Pencil, Calendar, Users, FileAudio } from 'lucide-react'
 
 export default function ArtifactDetail() {
   const { id } = useParams<{ id: string }>()
@@ -57,6 +57,31 @@ export default function ArtifactDetail() {
           </Button>
         </Link>
       </div>
+
+      {artifact.type === 'audio' && artifact.sourcePathOrUrl && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileAudio className="h-5 w-5" />
+              Audio Playback
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <audio
+              controls
+              className="w-full"
+              src={`http://localhost:3001/api${artifact.sourcePathOrUrl}`}
+            >
+              Your browser does not support the audio element.
+            </audio>
+            {artifact.importedFrom && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Original file: {artifact.importedFrom}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
