@@ -20,147 +20,185 @@ interface InterviewState {
   hasGottenDeep: boolean
 }
 
-// Barbara Walters-style question generation - reactive to what they actually say
+// Oprah sweeps week style - go for the jugular, dig into wounds
 function generateNextQuestion(messages: Message[], state: InterviewState): string {
   const lastUserMessage = messages.filter(m => m.speaker === 'user').slice(-1)[0]?.text || ''
   const lastText = lastUserMessage.toLowerCase()
   
-  // Opening - get them talking
+  // Opening - direct and provocative
   if (state.questionCount === 0) {
     return pickRandom([
-      "Tell me what's on your mind today. What memory keeps coming back to you?",
-      "I want to hear your story. Where should we begin?",
-      "What moment from your past do you find yourself thinking about?",
+      "What's the one thing from your past that you've never been able to forgive?",
+      "Tell me about the moment that broke you. The one you still think about.",
+      "Who hurt you the most? And why haven't you let it go?",
+      "What's the secret you've been carrying that's eating you alive?",
     ])
   }
 
-  // Detect if they're being brief or evasive
+  // They're being evasive - call them out hard
   if (lastUserMessage.length < 50 && state.questionCount > 1) {
     return pickRandom([
-      "I need more than that. Take me there. What did it look like? What did it smell like?",
-      "You're giving me the headline. I want the story beneath it.",
-      "Stay with me here. Close your eyes and go back to that moment. What do you see?",
-      "That's the polished version. What's the real one?",
+      "No. That's not it. You're deflecting. What are you really trying to avoid telling me?",
+      "I've interviewed hundreds of people. I know when someone's hiding something. What is it?",
+      "That answer was safe. I don't want safe. I want the truth that scares you.",
+      "You're protecting someone. Or protecting yourself. Which is it?",
+      "Stop. Take a breath. Now tell me what you're actually feeling right now.",
     ])
   }
 
-  // React to emotional words
-  if (lastText.includes('angry') || lastText.includes('furious') || lastText.includes('mad')) {
+  // ANGER - dig into the rage
+  if (lastText.includes('angry') || lastText.includes('furious') || lastText.includes('mad') || lastText.includes('hate')) {
     return pickRandom([
-      "Anger. That's a powerful word. But anger usually protects something softer. What's underneath it?",
-      "When you felt that anger—where did you feel it in your body?",
-      "And what did you do with that anger? Where did it go?",
+      "That anger—have you ever let yourself fully feel it? Or do you keep it locked away because you're afraid of what you might do?",
+      "Who taught you that anger wasn't safe to express? What happened when you showed it as a child?",
+      "If you could scream at them right now—really let it out—what would you say? Don't edit yourself.",
+      "The anger is the easy part. What's the grief underneath it that you're not ready to face?",
     ])
   }
 
-  if (lastText.includes('scared') || lastText.includes('afraid') || lastText.includes('terrified')) {
+  // FEAR - expose the terror
+  if (lastText.includes('scared') || lastText.includes('afraid') || lastText.includes('terrified') || lastText.includes('fear')) {
     return pickRandom([
-      "Fear. What exactly were you afraid would happen?",
-      "And did the thing you feared actually happen? Or was it something else entirely?",
-      "When you were that scared—who did you want to protect you?",
+      "What's the worst thing you've imagined happening? Say it out loud. Give it a name.",
+      "That fear—is it about what might happen? Or is it about what already did?",
+      "Who was supposed to protect you and didn't? Where were they?",
+      "When you're alone at night and the fear comes—what does it whisper to you?",
     ])
   }
 
+  // LOVE - expose the wounds
   if (lastText.includes('love') || lastText.includes('loved')) {
     return pickRandom([
-      "You said 'love.' That word means different things to different people. What did love look like in your family?",
-      "Did you feel loved in return? How did you know?",
-      "And when did you first learn what love was supposed to feel like?",
+      "Did they actually love you? Or did they just need you?",
+      "What did you have to become to be loved in that house? What parts of yourself did you have to hide?",
+      "When did you first realize that love could hurt this much?",
+      "Do you even know what real love feels like? Or have you been chasing a broken version your whole life?",
     ])
   }
 
-  if (lastText.includes('hurt') || lastText.includes('pain') || lastText.includes('broken')) {
+  // PAIN/HURT - go deeper into the wound
+  if (lastText.includes('hurt') || lastText.includes('pain') || lastText.includes('broken') || lastText.includes('damage')) {
     return pickRandom([
-      "That hurt you're describing—do you still carry it? Where?",
-      "Pain like that leaves a mark. What mark did it leave on you?",
-      "Have you ever told anyone how much that hurt? Really told them?",
+      "That wound—do you pick at it? Do you keep going back to it, reliving it?",
+      "Have you ever let yourself fully grieve this? Or do you just keep pushing through?",
+      "What did this break in you that never healed right?",
+      "If that pain could talk, what would it say it needs from you?",
     ])
   }
 
-  if (lastText.includes('never') || lastText.includes('always')) {
+  // SHAME - expose it
+  if (lastText.includes('shame') || lastText.includes('embarrass') || lastText.includes('guilty') || lastText.includes('fault')) {
     return pickRandom([
-      "You said 'never' — or 'always.' Those are big words. Is it really never? Or does it just feel that way?",
-      "Absolutes like that usually come from somewhere deep. When did you first start believing that?",
+      "Whose voice is that? When you feel that shame—whose words are you hearing?",
+      "What did you do that you've never forgiven yourself for? Say it.",
+      "Do you actually believe you deserved what happened? Look at me. Do you?",
+      "That shame isn't yours. Someone put it there. Who was it?",
     ])
   }
 
-  // React to mentioned people
-  if (lastText.includes('mother') || lastText.includes('mom')) {
+  // MOTHER - go for the maternal wound
+  if (lastText.includes('mother') || lastText.includes('mom') || lastText.includes('mama')) {
     return pickRandom([
-      "Your mother. Tell me about her. Not who she was to the world—who was she to you?",
-      "When you think of your mother, what's the first image that comes to mind?",
-      "What did you need from your mother that you didn't get?",
-      "And what would you say to her now, if she were sitting right here?",
+      "Did your mother see you? The real you? Or did she see what she wanted to see?",
+      "What did you need from her that she couldn't give you? And have you spent your whole life looking for it in other people?",
+      "When your mother looked at you—did you feel loved? Or did you feel like a burden?",
+      "What's the conversation you never had with her that you're still having in your head?",
+      "Did she protect you? When it mattered most, was she there?",
     ])
   }
 
-  if (lastText.includes('father') || lastText.includes('dad')) {
+  // FATHER - go for the paternal wound
+  if (lastText.includes('father') || lastText.includes('dad') || lastText.includes('daddy')) {
     return pickRandom([
-      "Your father. What did you learn from him—not what he taught, but what you learned by watching?",
-      "Was your father the kind of man you wanted to become? Or the kind you swore you'd never be?",
-      "What did you need from your father that you never got?",
-      "If your father could see you now, what would he think?",
+      "Was he there? I don't mean physically—was he emotionally present? Did he show up for you?",
+      "What did his silence teach you? What did his absence say about your worth?",
+      "Did you spend your childhood trying to earn his approval? Are you still trying?",
+      "When you needed him most, where was he? And what did that teach you about men?",
+      "Did he ever tell you he was proud of you? Did he ever say he loved you?",
     ])
   }
 
-  if (lastText.includes('brother') || lastText.includes('sister') || lastText.includes('sibling')) {
+  // ABANDONMENT
+  if (lastText.includes('left') || lastText.includes('abandon') || lastText.includes('alone') || lastText.includes('gone')) {
     return pickRandom([
-      "Siblings see things parents miss. What did they see?",
-      "Were you close? Or was there distance? Tell me about that.",
-      "What role did you play in that family? The responsible one? The rebel? The invisible one?",
+      "When they left—what did you tell yourself about why? What story did you make up about your own worth?",
+      "Do you leave people before they can leave you? Is that the pattern?",
+      "That feeling of being left—do you still feel it? Even in a crowded room?",
+      "Who was supposed to stay and didn't? And how has that shaped every relationship since?",
     ])
   }
 
-  if (lastText.includes('friend')) {
+  // BETRAYAL
+  if (lastText.includes('betray') || lastText.includes('trust') || lastText.includes('lie') || lastText.includes('cheat')) {
     return pickRandom([
-      "This friend—are they still in your life? Why or why not?",
-      "What did this friendship teach you about yourself?",
+      "After that betrayal—did you ever really trust anyone again? Or do you just pretend to?",
+      "What did that teach you about people? About yourself?",
+      "Do you blame yourself? Part of you thinks you should have seen it coming, doesn't it?",
+      "Have you become the kind of person who betrays others? Or the kind who waits to be betrayed?",
     ])
   }
 
-  // Probing deeper based on question count
+  // DEATH/LOSS
+  if (lastText.includes('died') || lastText.includes('death') || lastText.includes('lost') || lastText.includes('gone') || lastText.includes('passed')) {
+    return pickRandom([
+      "Did you get to say goodbye? What would you have said if you'd known?",
+      "What did you lose when they died that you've never gotten back?",
+      "Do you talk to them still? What do you say?",
+      "What's the thing you never told them that you wish you had?",
+    ])
+  }
+
+  // CHILDHOOD
+  if (lastText.includes('child') || lastText.includes('kid') || lastText.includes('young') || lastText.includes('little') || lastText.includes('grew up')) {
+    return pickRandom([
+      "What did that child need that no one gave them? What are you still hungry for?",
+      "If you could go back and hold that child—what would you tell them?",
+      "Did you have a childhood? Or did you have to grow up too fast?",
+      "What did you learn in that house that you're still unlearning?",
+    ])
+  }
+
+  // Probing deeper - sweeps week intensity
   if (state.questionCount >= 3 && !state.hasGottenDeep) {
     return pickRandom([
-      "We've been circling something. What is it you're not saying?",
-      "I can feel you holding back. What's the part of this story you've never told anyone?",
-      "Let's go deeper. What's the thing about this that still keeps you up at night?",
-      "You're telling me what happened. But what did it mean? What did you decide about yourself that day?",
-      "Here's what I'm hearing between the lines... there's something you're protecting. What is it?",
+      "We're dancing around it. What's the thing you've never said out loud? Say it now.",
+      "I can see it in your words—there's something underneath all of this. What is it?",
+      "What's the thing you're most afraid I'll ask you about? Let's go there.",
+      "You've been telling me the story. Now tell me the truth. What really happened?",
+      "What did this cost you? What part of yourself did you lose?",
     ])
   }
 
-  // Emotional core questions
+  // Emotional core - go for the kill
   if (state.questionCount >= 5) {
     return pickRandom([
-      "If the child you were then could see you now, what would they think?",
-      "What did this teach you about yourself that you still believe today?",
-      "Is that belief true? Or is it just a story you've been telling yourself?",
-      "What would it mean to let this go? What are you afraid you'd lose?",
-      "If you could go back and whisper something to yourself in that moment, what would it be?",
+      "Do you think you deserved what happened to you? Be honest.",
+      "What's the lie you've been telling yourself to survive? And do you still believe it?",
+      "If you could go back and change one thing—just one—what would it be?",
+      "What would it take for you to finally forgive yourself?",
+      "Are you living your life? Or are you still living in reaction to what happened to you?",
     ])
   }
 
-  // Meaning and closing
+  // Closing - meaning and resolution
   if (state.questionCount >= 7) {
     return pickRandom([
-      "How did this moment change the trajectory of your life?",
-      "What pattern in your life started here?",
-      "Looking back now, with everything you know—what do you understand that you didn't then?",
-      "Is there anything else you need to say about this? Anything we haven't touched?",
+      "After everything—what do you know now that you wish you'd known then?",
+      "Has this made you stronger? Or has it made you harder? There's a difference.",
+      "What do you want the rest of your story to be? You get to write it now.",
+      "If you could be free of this—truly free—what would your life look like?",
     ])
   }
 
-  // Default follow-ups
+  // Default follow-ups - still pointed
   return pickRandom([
-    "Tell me more about that.",
-    "And then what happened?",
-    "How did that make you feel?",
-    "What were you thinking in that moment?",
-    "Who else was there? What did they see?",
-    "And what did you do?",
-    "What happened next?",
-    "Why do you think that happened?",
-    "What did you want to happen instead?",
+    "And how did that make you feel? Don't give me the polite answer.",
+    "What aren't you telling me about that?",
+    "Why does that still matter to you? Why does it still have power?",
+    "What did you do with that feeling? Where did you put it?",
+    "Who else knows this? Have you ever told anyone?",
+    "What did you learn about yourself in that moment?",
+    "And what did you decide? About yourself, about the world?",
   ])
 }
 
@@ -195,7 +233,7 @@ export default function NoahWizardPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Start with Noah's opening
+  // Start with Noah's opening - direct and provocative
   useEffect(() => {
     if (messages.length === 0) {
       setIsNoahTyping(true)
@@ -203,7 +241,7 @@ export default function NoahWizardPage() {
         setMessages([{
           id: '1',
           speaker: 'noah',
-          text: "Welcome. I'm Noah. Think of this as a conversation, not an interview. There are no wrong answers here—only your truth. So... tell me what's on your mind today. What memory keeps coming back to you?",
+          text: "I'm Noah. I'm not here to make you comfortable. I'm here to help you tell the truth—the one you've been avoiding. So let's start with the hard stuff: What's the one thing from your past that still has power over you?",
           timestamp: new Date(),
         }])
         setIsNoahTyping(false)
@@ -351,33 +389,33 @@ export default function NoahWizardPage() {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-3 ${message.speaker === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex gap-4 ${message.speaker === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {message.speaker === 'noah' && (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900 dark:to-amber-800 flex items-center justify-center text-xl flex-shrink-0">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-200 to-amber-300 dark:from-amber-800 dark:to-amber-700 flex items-center justify-center text-3xl flex-shrink-0 shadow-lg">
                   🧔
                 </div>
               )}
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[85%] rounded-2xl px-6 py-4 ${
                   message.speaker === 'noah'
-                    ? 'bg-muted rounded-tl-sm'
+                    ? 'bg-card border border-border shadow-md rounded-tl-sm'
                     : 'bg-primary text-primary-foreground rounded-tr-sm'
                 }`}
               >
-                <p className={`text-sm leading-relaxed ${message.speaker === 'noah' ? 'font-narrative italic' : ''}`}>
-                  {message.speaker === 'noah' ? `"${message.text}"` : message.text}
+                <p className={`text-lg leading-relaxed ${message.speaker === 'noah' ? 'font-narrative text-foreground' : ''}`}>
+                  {message.speaker === 'noah' ? message.text : message.text}
                 </p>
               </div>
             </div>
           ))}
 
           {isNoahTyping && (
-            <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900 dark:to-amber-800 flex items-center justify-center text-xl flex-shrink-0">
+            <div className="flex gap-4">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-200 to-amber-300 dark:from-amber-800 dark:to-amber-700 flex items-center justify-center text-3xl flex-shrink-0 shadow-lg">
                 🧔
               </div>
-              <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+              <div className="bg-card border border-border shadow-md rounded-2xl rounded-tl-sm px-6 py-4">
                 <div className="flex gap-1">
                   <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
