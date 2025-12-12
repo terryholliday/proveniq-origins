@@ -17,6 +17,8 @@ import { exportRoutes } from './routes/export';
 import { tagRoutes } from './routes/tags';
 import { collectionRoutes } from './routes/collections';
 import { uploadRoutes } from './routes/uploads';
+import { messengerImportRoutes } from './routes/messengerImport';
+import { noahRoutes } from './routes/noah';
 
 dotenv.config();
 
@@ -44,6 +46,8 @@ app.use('/api/export', exportRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/collections', collectionRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/messenger-import', messengerImportRoutes);
+app.use('/api/ai', noahRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

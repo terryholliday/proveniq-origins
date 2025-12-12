@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Upload, FileAudio, X, Check, Loader2, Sparkles, Plus, Tag } from 'lucide-react'
+import { Upload, FileAudio, X, Check, Loader2, Sparkles, Plus } from 'lucide-react'
 
 interface FileWithPreview {
   file: File
@@ -63,7 +63,7 @@ export default function AudioUpload() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [dismissedTags, setDismissedTags] = useState<string[]>([])
   const [showContextAssistant, setShowContextAssistant] = useState(false)
-  const [contextAnswers, setContextAnswers] = useState<Record<string, string>>({})
+  const [, setContextAnswers] = useState<Record<string, string>>({})
 
   useQuery({
     queryKey: ['tags'],

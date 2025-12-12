@@ -6,58 +6,60 @@
 
 @layer base {
   :root {
-    --background: 45 30% 98%;
-    --foreground: 30 20% 15%;
-    --card: 45 25% 96%;
-    --card-foreground: 30 20% 15%;
-    --popover: 45 25% 96%;
-    --popover-foreground: 30 20% 15%;
-    --primary: 25 60% 35%;
-    --primary-foreground: 45 30% 98%;
-    --secondary: 35 20% 90%;
-    --secondary-foreground: 30 20% 20%;
-    --muted: 35 15% 92%;
-    --muted-foreground: 30 10% 45%;
-    --accent: 200 50% 45%;
-    --accent-foreground: 45 30% 98%;
+    /* Inspirational light theme - soft sunrise warmth with gentle lavender accents */
+    --background: 30 40% 99%;
+    --foreground: 240 10% 20%;
+    --card: 30 30% 98%;
+    --card-foreground: 240 10% 20%;
+    --popover: 30 30% 98%;
+    --popover-foreground: 240 10% 20%;
+    --primary: 15 80% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 280 30% 96%;
+    --secondary-foreground: 280 30% 30%;
+    --muted: 30 20% 95%;
+    --muted-foreground: 240 5% 45%;
+    --accent: 280 50% 60%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
-    --destructive-foreground: 45 30% 98%;
-    --border: 35 15% 85%;
-    --input: 35 15% 88%;
-    --ring: 25 60% 35%;
-    --radius: 0.625rem;
-    --chart-1: 25 70% 50%;
-    --chart-2: 200 55% 45%;
-    --chart-3: 160 45% 40%;
-    --chart-4: 280 50% 55%;
-    --chart-5: 340 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 20% 90%;
+    --input: 30 20% 92%;
+    --ring: 15 80% 55%;
+    --radius: 0.75rem;
+    --chart-1: 15 85% 55%;
+    --chart-2: 280 55% 55%;
+    --chart-3: 160 50% 45%;
+    --chart-4: 200 60% 50%;
+    --chart-5: 340 65% 55%;
   }
 
   .dark {
-    --background: 30 15% 8%;
-    --foreground: 40 20% 92%;
-    --card: 30 12% 12%;
-    --card-foreground: 40 20% 92%;
-    --popover: 30 12% 12%;
-    --popover-foreground: 40 20% 92%;
-    --primary: 35 70% 55%;
-    --primary-foreground: 30 15% 8%;
-    --secondary: 30 10% 18%;
-    --secondary-foreground: 40 20% 92%;
-    --muted: 30 10% 18%;
-    --muted-foreground: 35 15% 60%;
-    --accent: 200 60% 50%;
-    --accent-foreground: 30 15% 8%;
-    --destructive: 0 60% 45%;
-    --destructive-foreground: 40 20% 92%;
-    --border: 30 10% 20%;
-    --input: 30 10% 20%;
-    --ring: 35 70% 55%;
-    --chart-1: 35 75% 55%;
-    --chart-2: 200 60% 50%;
-    --chart-3: 160 50% 45%;
-    --chart-4: 280 55% 60%;
-    --chart-5: 340 65% 55%;
+    /* Inspirational dark theme - deep twilight with warm glows */
+    --background: 250 25% 8%;
+    --foreground: 30 30% 95%;
+    --card: 250 20% 12%;
+    --card-foreground: 30 30% 95%;
+    --popover: 250 20% 12%;
+    --popover-foreground: 30 30% 95%;
+    --primary: 20 90% 60%;
+    --primary-foreground: 250 25% 8%;
+    --secondary: 280 25% 20%;
+    --secondary-foreground: 280 30% 90%;
+    --muted: 250 15% 18%;
+    --muted-foreground: 30 15% 65%;
+    --accent: 280 60% 65%;
+    --accent-foreground: 250 25% 8%;
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 250 15% 20%;
+    --input: 250 15% 20%;
+    --ring: 20 90% 60%;
+    --chart-1: 20 90% 60%;
+    --chart-2: 280 60% 60%;
+    --chart-3: 160 55% 50%;
+    --chart-4: 200 65% 55%;
+    --chart-5: 340 70% 60%;
   }
 }
 
@@ -84,16 +86,76 @@
 .font-display {
   font-family: 'Crimson Pro', Georgia, serif;
   font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  
+  /* Inspirational gradients */
   .gradient-warm {
     @apply bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50;
   }
   .gradient-warm-dark {
     @apply bg-gradient-to-br from-amber-950/30 via-orange-950/20 to-rose-950/30;
+  }
+  .gradient-sunrise {
+    @apply bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50;
+  }
+  .gradient-sunrise-dark {
+    @apply bg-gradient-to-br from-rose-950/20 via-amber-950/20 to-orange-950/20;
+  }
+  .gradient-inspire {
+    @apply bg-gradient-to-br from-violet-50/50 via-rose-50/50 to-amber-50/50;
+  }
+  .gradient-inspire-dark {
+    @apply bg-gradient-to-br from-violet-950/30 via-rose-950/20 to-amber-950/30;
+  }
+  .gradient-hero {
+    background: linear-gradient(135deg, 
+      hsl(30 40% 99%) 0%, 
+      hsl(340 30% 97%) 25%, 
+      hsl(280 25% 97%) 50%, 
+      hsl(30 35% 98%) 100%);
+  }
+  .dark .gradient-hero {
+    background: linear-gradient(135deg, 
+      hsl(250 25% 8%) 0%, 
+      hsl(280 20% 12%) 25%, 
+      hsl(340 15% 10%) 50%, 
+      hsl(20 20% 10%) 100%);
+  }
+  
+  /* Glow effects for inspirational moments */
+  .glow-warm {
+    box-shadow: 0 0 40px -10px hsl(20 90% 60% / 0.3);
+  }
+  .glow-accent {
+    box-shadow: 0 0 40px -10px hsl(280 60% 60% / 0.3);
+  }
+  
+  /* Smooth transitions for frictionless feel */
+  .transition-smooth {
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  /* Breathing animation for calm presence */
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.05); opacity: 1; }
+  }
+  .animate-breathe {
+    animation: breathe 4s ease-in-out infinite;
+  }
+  
+  /* Gentle float animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
   }
 }

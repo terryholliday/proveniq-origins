@@ -587,6 +587,71 @@ export const uploadsApi = {
   },
 }
 
+// Messenger Import API
+export interface MessengerParseResult {
+  title: string
+  participants: string[]
+  messageCount: number
+  dateRange: { earliest: string; latest: string }
+  preview: Array<{
+    sender: string
+    timestamp: string
+    content: string
+    type: string
+    hasMedia: boolean
+    mediaTypes: string[]
+    reactions: Array<{ reaction: string; actor: string }>
+  }>
+}
+
+export interface MessengerImportResult {
+  success: boolean
+  conversation: string
+  participants: string[]
+  messageCount: number
+  dateRange: { earliest: string; latest: string }
+  results: {
+    peopleCreated: number
+    artifactsCreated: number
+    eventsCreated: number
+  }
+}
+
+export interface MessengerInstructions {
+  title: string
+  steps: Array<{ step: number; title: string; description: string }>
+  notes: string[]
+}
+
+export const messengerImportApi = {
+  getInstructions: async (): Promise<MessengerInstructions> => {
+    const { data } = await api.get('/messenger-import/instructions')
+    return data
+  },
+  parse: async (file: File): Promise<MessengerParseResult> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await api.post('/messenger-import/parse', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
+  },
+  import: async (
+    file: File,
+    options: { createPeople?: boolean; createArtifact?: boolean; groupByDay?: boolean }
+  ): Promise<MessengerImportResult> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('createPeople', String(options.createPeople ?? true))
+    formData.append('createArtifact', String(options.createArtifact ?? true))
+    formData.append('groupByDay', String(options.groupByDay ?? true))
+    const { data } = await api.post('/messenger-import/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
+  },
+}
+
 export const linksApi = {
   // Event ↔ Person
   linkPersonToEvent: async (eventId: string, personId: string) => {

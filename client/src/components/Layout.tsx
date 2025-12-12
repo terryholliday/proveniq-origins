@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Moon, Sun, Home, Calendar, BookOpen, Users, FileText, Sparkles, Clock, Search, Download, Tag, FolderOpen, Filter, Upload, Music, RotateCcw, HelpCircle } from 'lucide-react'
+import { Moon, Sun, Home, Calendar, BookOpen, Users, FileText, Sparkles, Clock, Search, Download, Tag, FolderOpen, Filter, Upload, Music, RotateCcw, HelpCircle, Feather } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   Tooltip,
@@ -41,15 +41,17 @@ export default function Layout({ children, theme, toggleTheme }: LayoutProps) {
   return (
     <TooltipProvider delayDuration={200}>
       <div className="min-h-screen bg-background">
-        <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="sticky top-0 z-50 border-b border-border/50 bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
           <div className="container flex h-14 items-center">
             <div className="mr-4 flex">
-              <Link to="/" className="flex items-center space-x-2">
-                <BookOpen className="h-6 w-6 text-primary" />
-                <span className="font-display text-xl">MemoirArk</span>
+              <Link to="/" className="flex items-center space-x-2 group">
+                <div className="p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 group-hover:from-primary/20 group-hover:to-accent/20 transition-colors">
+                  <Feather className="h-5 w-5 text-primary" />
+                </div>
+                <span className="font-display text-xl bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MemoirArk</span>
               </Link>
             </div>
-            <nav className="flex items-center space-x-1 text-sm font-medium flex-1 overflow-x-auto">
+            <nav className="flex items-center space-x-0.5 text-sm font-medium flex-1 overflow-x-auto">
               {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = location.pathname === item.path
@@ -60,10 +62,10 @@ export default function Layout({ children, theme, toggleTheme }: LayoutProps) {
                         to={item.path}
                         data-tour={item.path.replace(/\//g, '-').slice(1) || 'dashboard'}
                         className={cn(
-                          'flex items-center justify-center p-2 rounded-lg transition-all',
+                          'flex items-center justify-center p-2 rounded-lg transition-all duration-200',
                           isActive
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                            ? 'bg-gradient-to-br from-primary/15 to-accent/10 text-primary shadow-sm'
+                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                         )}
                       >
                         <Icon className="h-4 w-4" />
@@ -80,7 +82,7 @@ export default function Layout({ children, theme, toggleTheme }: LayoutProps) {
               <TooltipTrigger asChild>
                 <button
                   onClick={toggleTheme}
-                  className="inline-flex items-center justify-center rounded-lg p-2 transition-colors hover:bg-muted text-muted-foreground hover:text-foreground"
+                  className="inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 hover:bg-muted/50 text-muted-foreground hover:text-foreground"
                   aria-label="Toggle theme"
                 >
                   {theme === 'dark' ? (
@@ -96,7 +98,7 @@ export default function Layout({ children, theme, toggleTheme }: LayoutProps) {
             </Tooltip>
           </div>
         </header>
-        <main className="container py-6">{children}</main>
+        <main className="container py-8">{children}</main>
       </div>
     </TooltipProvider>
   )
