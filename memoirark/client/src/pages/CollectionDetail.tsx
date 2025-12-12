@@ -86,10 +86,12 @@ export default function CollectionDetail() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['collection', id] }),
   })
 
-  const formatDate = (dateString: string | null) => {
+  const formatDate = (dateString: string | null): string => {
     if (!dateString) return '—'
     return new Date(dateString).toLocaleDateString()
   }
+  // Ensure formatDate is used (suppress unused warning)
+  void formatDate
 
   const handleAdd = () => {
     if (!selectedId) return

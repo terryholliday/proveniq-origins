@@ -587,30 +587,35 @@ export default function NoahInterviewer() {
   const userMessageCount = memory.messages.filter(m => m.role === 'user').length
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-stone-100 dark:from-stone-950 dark:to-stone-900 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-rose-50/30 via-amber-50/20 to-violet-50/30 dark:from-slate-950 dark:via-violet-950/20 dark:to-slate-900 flex flex-col">
       {/* Breathing animation keyframes */}
       <style>{`
         @keyframes breathe {
-          0%, 100% { transform: scale(1); opacity: 0.3; }
-          50% { transform: scale(1.15); opacity: 0.6; }
+          0%, 100% { transform: scale(1); opacity: 0.4; }
+          50% { transform: scale(1.1); opacity: 0.7; }
+        }
+        @keyframes gentle-glow {
+          0%, 100% { box-shadow: 0 0 20px -5px hsl(20 90% 60% / 0.2); }
+          50% { box-shadow: 0 0 30px -5px hsl(20 90% 60% / 0.4); }
         }
       `}</style>
 
-      {/* Header - minimal, calm */}
-      <div className="border-b border-stone-200 dark:border-stone-800 bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm sticky top-0 z-10">
+      {/* Header - warm, inviting */}
+      <div className="border-b border-rose-100/50 dark:border-violet-900/30 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm sticky top-0 z-10">
         <div className="container max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => navigate('/')}
-            className="text-stone-500 hover:text-stone-700 dark:text-stone-400"
+            className="text-muted-foreground hover:text-foreground"
           >
             <Home className="w-4 h-4 mr-2" />
             Exit
           </Button>
           
-          <div className="text-sm text-stone-500 dark:text-stone-400 font-medium">
-            Interview with Noah
+          <div className="text-sm font-medium text-foreground/70 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-primary/60 animate-pulse" />
+            Conversation with Noah
           </div>
           
           <div className="flex gap-2">
@@ -620,10 +625,10 @@ export default function NoahInterviewer() {
                 size="sm" 
                 onClick={handleSaveInterview} 
                 disabled={isSaving}
-                className="text-stone-500 hover:text-stone-700"
+                className="text-muted-foreground hover:text-foreground"
               >
                 <Save className="w-4 h-4 mr-2" />
-                {isSaving ? 'Saving...' : 'Save'}
+                {isSaving ? 'Preserving...' : 'Save Story'}
               </Button>
             )}
             {userMessageCount > 0 && (
@@ -631,7 +636,7 @@ export default function NoahInterviewer() {
                 variant="ghost" 
                 size="sm" 
                 onClick={handleStartOver}
-                className="text-stone-500 hover:text-stone-700"
+                className="text-muted-foreground hover:text-foreground"
               >
                 <RotateCcw className="w-4 h-4" />
               </Button>
@@ -640,7 +645,7 @@ export default function NoahInterviewer() {
         </div>
       </div>
 
-      {/* Messages - calm, spacious */}
+      {/* Messages - warm, spacious, inspiring */}
       <div className="flex-1 overflow-y-auto" onClick={handleSkipTyping}>
         <div className="container max-w-2xl mx-auto px-4 py-8 space-y-8">
           {memory.messages.map((message) => (
@@ -656,8 +661,8 @@ export default function NoahInterviewer() {
               <div
                 className={`max-w-[80%] ${
                   message.role === 'noah'
-                    ? 'text-stone-700 dark:text-stone-300'
-                    : 'bg-stone-200 dark:bg-stone-800 rounded-2xl rounded-tr-sm px-5 py-4 text-stone-800 dark:text-stone-200'
+                    ? 'text-foreground/90'
+                    : 'bg-gradient-to-br from-primary/10 to-accent/10 dark:from-primary/20 dark:to-accent/20 rounded-2xl rounded-tr-sm px-5 py-4 text-foreground'
                 }`}
               >
                 <p className="text-lg leading-relaxed whitespace-pre-wrap">
@@ -673,10 +678,10 @@ export default function NoahInterviewer() {
               <div className="flex-shrink-0">
                 <NoahPresence state={noahState} />
               </div>
-              <div className="max-w-[80%] text-stone-700 dark:text-stone-300">
+              <div className="max-w-[80%] text-foreground/90">
                 <p className="text-lg leading-relaxed whitespace-pre-wrap">
                   {displayedText}
-                  {isTyping && <span className="animate-pulse">|</span>}
+                  {isTyping && <span className="animate-pulse text-primary">|</span>}
                 </p>
               </div>
             </div>
@@ -688,8 +693,8 @@ export default function NoahInterviewer() {
               <div className="flex-shrink-0">
                 <NoahPresence state="thinking" />
               </div>
-              <div className="text-stone-400 dark:text-stone-500 text-lg italic">
-                {/* No loading indicator - just presence */}
+              <div className="text-muted-foreground text-lg italic">
+                {/* Presence speaks for itself */}
               </div>
             </div>
           )}
@@ -698,9 +703,9 @@ export default function NoahInterviewer() {
         </div>
       </div>
 
-      {/* Input - warm, inviting */}
+      {/* Input - warm, inviting, frictionless */}
       {!isSaved && (
-        <div className="border-t border-stone-200 dark:border-stone-800 bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm sticky bottom-0">
+        <div className="border-t border-rose-100/50 dark:border-violet-900/30 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm sticky bottom-0">
           <div className="container max-w-2xl mx-auto px-4 py-4">
             <div className="flex gap-3 items-end">
               <div className="flex-1 relative">
@@ -709,8 +714,8 @@ export default function NoahInterviewer() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={noahState === 'listening' ? "Take your time..." : ""}
-                  className="min-h-[56px] max-h-[200px] resize-none bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-700 focus:border-amber-400 dark:focus:border-amber-600 rounded-xl pr-12"
+                  placeholder={noahState === 'listening' ? "Share what's on your heart..." : ""}
+                  className="min-h-[56px] max-h-[200px] resize-none bg-white dark:bg-slate-900 border-border/50 focus:border-primary/50 dark:focus:border-primary/50 rounded-xl pr-12 shadow-sm"
                   disabled={noahState === 'thinking' || noahState === 'speaking'}
                 />
                 
@@ -733,30 +738,30 @@ export default function NoahInterviewer() {
                 onClick={handleSend}
                 disabled={!inputValue.trim() || noahState === 'thinking' || noahState === 'speaking'}
                 size="icon"
-                className="h-14 w-14 rounded-xl bg-amber-500 hover:bg-amber-600 text-white"
+                className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-white shadow-lg shadow-primary/20"
               >
                 <Send className="w-5 h-5" />
               </Button>
             </div>
             
-            <p className="text-xs text-stone-400 mt-2 text-center">
-              Press Enter to send · Shift+Enter for new line
+            <p className="text-xs text-muted-foreground/60 mt-2 text-center">
+              Press Enter to share · Shift+Enter for new line
             </p>
           </div>
         </div>
       )}
 
-      {/* Saved state */}
+      {/* Saved state - celebratory */}
       {isSaved && (
-        <div className="border-t border-stone-200 dark:border-stone-800 bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm sticky bottom-0">
+        <div className="border-t border-rose-100/50 dark:border-violet-900/30 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm sticky bottom-0">
           <div className="container max-w-2xl mx-auto px-4 py-6 text-center">
-            <p className="text-sm text-stone-500 mb-4">Interview saved to your archive</p>
+            <p className="text-sm text-foreground/70 mb-4">Your story has been preserved ✨</p>
             <div className="flex gap-3 justify-center">
               <Button variant="outline" onClick={() => navigate('/events')}>
-                View Events
+                View Your Moments
               </Button>
-              <Button onClick={handleStartOver} className="bg-amber-500 hover:bg-amber-600 text-white">
-                Start New Interview
+              <Button onClick={handleStartOver} className="bg-gradient-to-r from-primary to-primary/80 text-white">
+                Continue Your Story
               </Button>
             </div>
           </div>

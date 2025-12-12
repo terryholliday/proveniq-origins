@@ -46,7 +46,7 @@ export default function QueryBuilder() {
 
   const { data: persons } = useQuery({
     queryKey: ['persons'],
-    queryFn: personsApi.getAll,
+    queryFn: () => personsApi.getAll(),
   })
 
   const { data: tags } = useQuery({
@@ -317,11 +317,11 @@ export default function QueryBuilder() {
                           {event.summary && (
                             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{event.summary}</p>
                           )}
-                          {event.tags && event.tags.length > 0 && (
+                          {event.emotionTags && event.emotionTags.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {event.tags.map((tag: any) => (
-                                <span key={tag.id} className="px-2 py-0.5 bg-muted rounded text-xs">
-                                  {tag.name}
+                              {event.emotionTags.map((tag: string) => (
+                                <span key={tag} className="px-2 py-0.5 bg-muted rounded text-xs">
+                                  {tag}
                                 </span>
                               ))}
                             </div>
