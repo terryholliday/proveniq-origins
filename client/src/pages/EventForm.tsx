@@ -28,6 +28,8 @@ export default function EventForm() {
   const [formData, setFormData] = useState<EventCreateInput>({
     title: '',
     date: null,
+    time: null,
+    timeApproximate: false,
     location: null,
     summary: null,
     emotionTags: [],
@@ -61,6 +63,8 @@ export default function EventForm() {
       setFormData({
         title: event.title,
         date: event.date,
+        time: event.time || null,
+        timeApproximate: event.timeApproximate || false,
         location: event.location,
         summary: event.summary,
         emotionTags: event.emotionTags,
@@ -172,6 +176,41 @@ export default function EventForm() {
                     }))
                   }
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="time">Time (optional)</Label>
+                <div className="flex gap-2 items-center">
+                  <Input
+                    id="time"
+                    type="time"
+                    value={formData.time || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        time: e.target.value || null,
+                      }))
+                    }
+                    className="w-32"
+                  />
+                  <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={formData.timeApproximate || false}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          timeApproximate: e.target.checked,
+                        }))
+                      }
+                      className="rounded"
+                    />
+                    Approximate
+                  </label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  For births, accidents, or other time-sensitive events
+                </p>
               </div>
 
               <div className="space-y-2">

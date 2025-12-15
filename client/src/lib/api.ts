@@ -78,6 +78,8 @@ export interface Event {
   id: string
   title: string
   date: string | null
+  time: string | null
+  timeApproximate: boolean
   location: string | null
   summary: string | null
   emotionTags: string[]
@@ -114,6 +116,8 @@ export interface Stats {
 export interface EventCreateInput {
   title: string
   date?: string | null
+  time?: string | null
+  timeApproximate?: boolean
   location?: string | null
   summary?: string | null
   emotionTags?: string[]
