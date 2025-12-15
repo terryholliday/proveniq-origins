@@ -35,6 +35,11 @@ import UserGuide from './pages/UserGuide'
 import MessengerImport from './pages/MessengerImport'
 import SmsImport from './pages/SmsImport'
 import ChatGptImport from './pages/ChatGptImport'
+import MemoirExport from './pages/MemoirExport'
+import PhotoMemory from './pages/PhotoMemory'
+import FamilyTree from './pages/FamilyTree'
+import VoiceCapture from './pages/VoiceCapture'
+import FamilyCollaboration from './pages/FamilyCollaboration'
 import NoahInterviewer from './components/NoahInterviewer'
 
 function App() {
@@ -118,6 +123,11 @@ function App() {
           <Route path="/import/messenger" element={<MessengerImport />} />
           <Route path="/import/sms" element={<SmsImport />} />
           <Route path="/import/chatgpt" element={<ChatGptImport />} />
+          <Route path="/memoir" element={<MemoirExport />} />
+          <Route path="/photo-memory" element={<PhotoMemory />} />
+          <Route path="/family-tree" element={<FamilyTree />} />
+          <Route path="/voice-capture" element={<VoiceCapture />} />
+          <Route path="/collaborate" element={<FamilyCollaboration />} />
           <Route path="/interview" element={<NoahInterviewer />} />
         </Routes>
       </Layout>

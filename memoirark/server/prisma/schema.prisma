@@ -59,6 +59,8 @@ model Event {
   id                 String                 @id @default(cuid())
   title              String
   date               DateTime?
+  time               String?                // HH:MM format for exact time (births, accidents, etc.)
+  timeApproximate    Boolean                @default(false) // true if time is estimated
   location           String?
   summary            String?
   emotionTags        String                 @default("[]")

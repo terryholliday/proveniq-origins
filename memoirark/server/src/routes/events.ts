@@ -7,6 +7,8 @@ export const eventRoutes = Router();
 const eventCreateSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   date: z.string().datetime().nullable().optional(),
+  time: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).nullable().optional(), // HH:MM format
+  timeApproximate: z.boolean().optional().default(false),
   location: z.string().nullable().optional(),
   summary: z.string().nullable().optional(),
   emotionTags: z.array(z.string()).optional().default([]),
@@ -136,6 +138,8 @@ eventRoutes.post('/', async (req: Request, res: Response) => {
       data: {
         title: data.title,
         date: data.date ? new Date(data.date) : null,
+        time: data.time ?? null,
+        timeApproximate: data.timeApproximate ?? false,
         location: data.location ?? null,
         summary: data.summary ?? null,
         emotionTags: JSON.stringify(data.emotionTags),

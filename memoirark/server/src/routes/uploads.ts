@@ -48,11 +48,54 @@ const audioFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFil
   }
 };
 
+// File filter for images
+const imageFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const allowedTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/heic',
+    'image/heif',
+  ];
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error(`Invalid file type: ${file.mimetype}. Only image files are allowed.`));
+  }
+};
+
+// Storage for images
+const imageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const imagesDir = path.join(uploadsDir, 'images');
+    if (!fs.existsSync(imagesDir)) {
+      fs.mkdirSync(imagesDir, { recursive: true });
+    }
+    cb(null, imagesDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `photo-${uniqueSuffix}${ext}`);
+  },
+});
+
 const upload = multer({
   storage,
   fileFilter: audioFilter,
   limits: {
     fileSize: 500 * 1024 * 1024, // 500MB max for long therapy sessions
+  },
+});
+
+const uploadImage = multer({
+  storage: imageStorage,
+  fileFilter: imageFilter,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB max for photos
   },
 });
 
@@ -156,4 +199,100 @@ uploadRoutes.delete('/:filename', async (req: Request, res: Response) => {
     console.error('Error deleting file:', error);
     res.status(500).json({ error: 'Failed to delete file' });
   }
+});
+
+// POST /api/uploads/photo - Upload photo and create artifact
+uploadRoutes.post('/photo', uploadImage.single('photo'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No photo provided' });
+    }
+
+    const { shortDescription, sourceSystem, dateTaken, location } = req.body;
+
+    // Create artifact record
+    const artifact = await prisma.artifact.create({
+      data: {
+        type: 'photo',
+        sourceSystem: sourceSystem || 'upload',
+        sourcePathOrUrl: `/uploads/images/${req.file.filename}`,
+        shortDescription: shortDescription || req.file.originalname,
+        importedFrom: req.file.originalname,
+      },
+    });
+
+    res.status(201).json({
+      artifact,
+      file: {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
+        path: `/uploads/images/${req.file.filename}`,
+      },
+    });
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    if (req.file) {
+      const imagesDir = path.join(uploadsDir, 'images');
+      fs.unlinkSync(path.join(imagesDir, req.file.filename));
+    }
+    res.status(500).json({ error: 'Failed to upload photo' });
+  }
+});
+
+// POST /api/uploads/photo/analyze - AI analysis of uploaded photo
+uploadRoutes.post('/photo/analyze', async (req: Request, res: Response) => {
+  try {
+    const { artifactId, imageUrl } = req.body;
+
+    if (!artifactId && !imageUrl) {
+      return res.status(400).json({ error: 'Artifact ID or image URL required' });
+    }
+
+    let imagePath = imageUrl;
+    if (artifactId) {
+      const artifact = await prisma.artifact.findUnique({ where: { id: artifactId } });
+      if (!artifact) {
+        return res.status(404).json({ error: 'Artifact not found' });
+      }
+      imagePath = artifact.sourcePathOrUrl;
+    }
+
+    const googleAiKey = process.env.GOOGLE_AI_API_KEY;
+    if (!googleAiKey) {
+      return res.status(500).json({ error: 'AI not configured' });
+    }
+
+    // For now, return a prompt for the user to describe the photo
+    // Full image analysis would require Gemini Vision API with base64 encoding
+    res.json({
+      message: 'Photo uploaded successfully. Describe what you see in this photo to create a memory.',
+      artifactId,
+      suggestedQuestions: [
+        'Who is in this photo?',
+        'When was this taken?',
+        'Where was this?',
+        'What was happening?',
+        'How did you feel in this moment?',
+      ],
+    });
+
+  } catch (error) {
+    console.error('Error analyzing photo:', error);
+    res.status(500).json({ error: 'Failed to analyze photo' });
+  }
+});
+
+// GET /api/uploads/images/:filename - Serve uploaded image
+uploadRoutes.get('/images/:filename', (req: Request, res: Response) => {
+  const { filename } = req.params;
+  const imagesDir = path.join(uploadsDir, 'images');
+  const filePath = path.join(imagesDir, filename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Image not found' });
+  }
+
+  res.sendFile(filePath);
 });

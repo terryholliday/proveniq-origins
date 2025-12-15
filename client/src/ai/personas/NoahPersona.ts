@@ -171,9 +171,9 @@ Before we dive into anything deep, I'd just like to get to know you a little. So
 
 So let's start easy: where did you grow up?`,
 
-  returning: `Welcome back. Ready to continue your story?
+  returning: `Welcome back. I see you haven't added any memories to your archive yet—that's perfectly fine. Every memoir starts somewhere.
 
-Let's pick up where we left off. What's been on your mind since we last talked?`,
+Let's begin with something simple: what's a moment from your life that you find yourself thinking about more than others?`,
 
   afterPause: `Take all the time you need. Your story has waited this long—it can wait a little longer.
 

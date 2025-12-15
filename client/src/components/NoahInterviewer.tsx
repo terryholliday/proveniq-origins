@@ -391,16 +391,25 @@ export default function NoahInterviewer() {
       const lastSession = localStorage.getItem('memoirark-last-session')
       
       // Fetch recent events for context
-      const eventsResponse = await fetch('http://localhost:3001/api/events?limit=5')
-      const recentEvents = eventsResponse.ok ? await eventsResponse.json() : []
+      let recentEvents: Array<{ title: string; summary?: string; emotionTags?: string[]; date?: string }> = []
+      try {
+        const eventsResponse = await fetch('http://localhost:3001/api/events')
+        if (eventsResponse.ok) {
+          const allEvents = await eventsResponse.json()
+          recentEvents = allEvents.slice(0, 5)
+        }
+      } catch (e) {
+        console.log('Could not fetch events for greeting')
+      }
       
+      // If we have no data at all, use generic
       if (!lastSession && recentEvents.length === 0) {
         return NOAH_OPENINGS.returning
       }
 
       // Build context for AI
       const sessionData = lastSession ? JSON.parse(lastSession) : null
-      const eventSummaries = recentEvents.slice(0, 3).map((e: { title: string; summary?: string; emotionTags?: string[] }) => 
+      const eventSummaries = recentEvents.map((e) => 
         `"${e.title}"${e.summary ? ` - ${e.summary.slice(0, 100)}` : ''}${e.emotionTags?.length ? ` (${e.emotionTags.slice(0, 2).join(', ')})` : ''}`
       ).join('; ')
 
@@ -425,7 +434,7 @@ Generate a warm, personalized greeting that:
 Be warm but not sycophantic. Be specific, not generic. Channel Oprah's "I see you" energy.
 Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
 
-      const response = await fetch('/api/ai/noah', {
+      const response = await fetch('http://localhost:3001/api/ai/noah', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -443,10 +452,13 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
           const parsed = JSON.parse(greeting)
           if (parsed.reply_to_user) greeting = parsed.reply_to_user
         } catch { /* plain text response */ }
-        return greeting
+        
+        if (greeting && greeting.length > 20) {
+          return greeting
+        }
       }
     } catch (error) {
-      console.log('Could not generate personalized greeting, using default')
+      console.log('Could not generate personalized greeting, using default:', error)
     }
     
     return NOAH_OPENINGS.returning
@@ -821,10 +833,10 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
             {/* Astro Mode Toggle */}
             <button
               onClick={() => setShowAstroSettings(true)}
-              className={`text-xs px-2 py-1 rounded-full transition-colors ${
+              className={`text-sm px-3 py-1.5 rounded-full border transition-colors font-medium ${
                 birthData.astroEnabled && birthData.time && birthData.place
-                  ? 'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  ? 'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 border-violet-300 dark:border-violet-700'
+                  : 'bg-white dark:bg-slate-800 text-muted-foreground hover:text-violet-600 hover:border-violet-300 border-border'
               }`}
               title="Astro Mode Settings"
             >

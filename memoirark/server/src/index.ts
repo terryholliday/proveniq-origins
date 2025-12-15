@@ -21,6 +21,7 @@ import { messengerImportRoutes } from './routes/messengerImport';
 import { smsImportRoutes } from './routes/smsImport';
 import { chatgptImportRoutes } from './routes/chatgptImport';
 import { chapterOrganizerRoutes } from './routes/chapterOrganizer';
+import { memoirExportRoutes } from './routes/memoirExport';
 import { noahRoutes } from './routes/noah';
 
 dotenv.config();
@@ -53,6 +54,7 @@ app.use('/api/messenger-import', messengerImportRoutes);
 app.use('/api/sms-import', smsImportRoutes);
 app.use('/api/chatgpt-import', chatgptImportRoutes);
 app.use('/api/chapters', chapterOrganizerRoutes);
+app.use('/api/memoir', memoirExportRoutes);
 app.use('/api/ai', noahRoutes);
 
 // Health check
