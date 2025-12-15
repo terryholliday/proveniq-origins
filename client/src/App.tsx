@@ -40,6 +40,7 @@ import PhotoMemory from './pages/PhotoMemory'
 import FamilyTree from './pages/FamilyTree'
 import VoiceCapture from './pages/VoiceCapture'
 import FamilyCollaboration from './pages/FamilyCollaboration'
+import CloudImport from './pages/CloudImport'
 import NoahInterviewer from './components/NoahInterviewer'
 
 function App() {
@@ -128,6 +129,7 @@ function App() {
           <Route path="/family-tree" element={<FamilyTree />} />
           <Route path="/voice-capture" element={<VoiceCapture />} />
           <Route path="/collaborate" element={<FamilyCollaboration />} />
+          <Route path="/import/cloud" element={<CloudImport />} />
           <Route path="/interview" element={<NoahInterviewer />} />
         </Routes>
       </Layout>

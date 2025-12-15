@@ -23,6 +23,7 @@ import { chatgptImportRoutes } from './routes/chatgptImport';
 import { chapterOrganizerRoutes } from './routes/chapterOrganizer';
 import { memoirExportRoutes } from './routes/memoirExport';
 import { noahRoutes } from './routes/noah';
+import { cloudStorageRoutes } from './routes/cloudStorage';
 
 dotenv.config();
 
@@ -56,6 +57,7 @@ app.use('/api/chatgpt-import', chatgptImportRoutes);
 app.use('/api/chapters', chapterOrganizerRoutes);
 app.use('/api/memoir', memoirExportRoutes);
 app.use('/api/ai', noahRoutes);
+app.use('/api/cloud', cloudStorageRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
