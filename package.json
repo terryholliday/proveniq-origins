@@ -1,7 +1,7 @@
 {
-  "name": "memoirark-server",
+  "name": "origins-server",
   "version": "1.0.0",
-  "description": "MemoirArk Backend API Server",
+  "description": "Origins by PROVENIQ - Backend API Server",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",

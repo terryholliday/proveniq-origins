@@ -110,7 +110,7 @@ export default function Layout({ children, theme, toggleTheme }: LayoutProps) {
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 group-hover:from-primary/20 group-hover:to-accent/20 transition-colors">
               <Feather className="h-5 w-5 text-primary" />
             </div>
-            <span className="font-display text-xl hidden sm:inline">MemoirArk</span>
+            <span className="font-display text-xl hidden sm:inline">Origins <span className="text-xs text-muted-foreground font-normal">by PROVENIQ</span></span>
           </Link>
 
           {/* Desktop Navigation */}

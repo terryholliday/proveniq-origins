@@ -161,7 +161,7 @@ export default function Landing() {
 
   const testimonials = [
     {
-      quote: "I've been meaning to write my memoir for 20 years. MemoirArk made it happen in 3 months.",
+      quote: "I've been meaning to write my memoir for 20 years. Origins made it happen in 3 months.",
       author: "Margaret T.",
       role: "Retired Teacher, 72",
     },
@@ -187,7 +187,7 @@ export default function Landing() {
               <div className="p-2 rounded-lg bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30">
                 <Feather className="h-6 w-6 text-amber-600 dark:text-amber-400" />
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">MemoirArk</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">Origins <span className="text-sm font-normal text-amber-600">by PROVENIQ</span></span>
             </div>
             <div className="flex items-center gap-4">
               <Button variant="ghost" onClick={() => openAuth('login')}>
@@ -210,15 +210,15 @@ export default function Landing() {
               AI-Powered Memoir Writing
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
-              Your Life Story,{' '}
+              Where You{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
-                Beautifully Preserved
+                Come From
               </span>
             </h1>
             <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              MemoirArk helps you capture, organize, and transform your memories into a 
+              Origins helps you capture, organize, and transform your memories into a 
               lasting legacy. With AI-guided interviews and automatic chapter generation, 
-              your memoir writes itself.
+              your story writes itself.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
@@ -226,7 +226,7 @@ export default function Landing() {
                 onClick={() => openAuth('signup')}
                 className="bg-amber-600 hover:bg-amber-700 text-lg h-14 px-8"
               >
-                Start Your Memoir Free
+                Start Your Story Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button 
@@ -319,7 +319,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
-              How MemoirArk Works
+              How Origins Works
             </h2>
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
               Three simple steps to your finished memoir
@@ -336,7 +336,7 @@ export default function Landing() {
               {
                 step: '2',
                 title: 'Watch It Organize',
-                description: 'MemoirArk automatically creates a timeline, links people, and identifies chapter themes.',
+                description: 'Origins automatically creates a timeline, links people, and identifies chapter themes.',
               },
               {
                 step: '3',
@@ -452,17 +452,17 @@ export default function Landing() {
       <section className="py-20 lg:py-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
-            Your Story Deserves to Be Told
+            Your Origins Deserve to Be Preserved
           </h2>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-            Don't let your memories fade. Start preserving your legacy today.
+            Don't let your story fade. Start preserving your origins today.
           </p>
           <Button 
             size="lg" 
             onClick={() => openAuth('signup')}
             className="mt-8 bg-amber-600 hover:bg-amber-700 text-lg h-14 px-8"
           >
-            Begin Your Memoir — It's Free
+            Begin Your Story — It's Free
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
@@ -474,14 +474,14 @@ export default function Landing() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
               <Feather className="h-5 w-5 text-amber-500" />
-              <span className="text-white font-semibold">MemoirArk</span>
+              <span className="text-white font-semibold">Origins <span className="text-amber-500 text-xs">by PROVENIQ</span></span>
             </div>
             <div className="flex gap-6 text-sm">
               <a href="#" className="hover:text-white transition-colors">Privacy</a>
               <a href="#" className="hover:text-white transition-colors">Terms</a>
               <a href="#" className="hover:text-white transition-colors">Contact</a>
             </div>
-            <p className="text-sm">© 2024 MemoirArk. All rights reserved.</p>
+            <p className="text-sm">© 2024 Origins by PROVENIQ. All rights reserved.</p>
           </div>
         </div>
       </footer>

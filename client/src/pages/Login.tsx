@@ -71,9 +71,9 @@ export default function Login() {
             <BookOpen className="w-8 h-8 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">Welcome to MemoirArk</CardTitle>
+            <CardTitle className="text-2xl font-bold">Welcome to Origins</CardTitle>
             <CardDescription className="mt-2">
-              Your personal memoir and life story platform
+              Your life story, preserved. By PROVENIQ.
             </CardDescription>
           </div>
         </CardHeader>
