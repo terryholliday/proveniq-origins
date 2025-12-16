@@ -25,3 +25,7 @@ yarn-error.log*
 # Local env files
 .env*.local
 .env
+
+Beyond Belief/
+uploads/
+dist/
