@@ -22,7 +22,7 @@ import { smsImportRoutes } from './routes/smsImport';
 import { chatgptImportRoutes } from './routes/chatgptImport';
 import { chapterOrganizerRoutes } from './routes/chapterOrganizer';
 import { memoirExportRoutes } from './routes/memoirExport';
-import { OriRoutes } from './routes/Ori';
+import { OriRoutes } from './routes/ori';
 import { cloudStorageRoutes } from './routes/cloudStorage';
 import { authRoutes } from './routes/auth';
 import { spotifyRoutes } from './routes/spotify';
