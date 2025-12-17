@@ -64,7 +64,10 @@ cloudStorageRoutes.get('/google/callback', async (req: Request, res: Response) =
 
   try {
     const { tokens } = await oauth2Client.getToken(code);
-    googleTokens = tokens;
+    googleTokens = {
+      access_token: tokens.access_token ?? undefined,
+      refresh_token: tokens.refresh_token ?? undefined,
+    };
     
     // Redirect back to app with success
     res.redirect('http://localhost:5173/import/cloud?provider=google&status=connected');
