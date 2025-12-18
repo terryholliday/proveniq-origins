@@ -351,16 +351,16 @@ export default function OriInterviewer() {
     place: string | null
     astroEnabled: boolean
   }>(() => {
-    const saved = localStorage.getItem('memoirark-birth-data')
+    const saved = localStorage.getItem('origins-birth-data')
     if (saved) {
       try { return JSON.parse(saved) } catch { /* ignore */ }
     }
     return { date: null, time: null, place: null, astroEnabled: false }
   })
   const [isFirstVisit] = useState(() => {
-    const visited = localStorage.getItem('memoirark-Ori-visited')
+    const visited = localStorage.getItem('origins-ori-visited')
     if (!visited) {
-      localStorage.setItem('memoirark-Ori-visited', 'true')
+      localStorage.setItem('origins-ori-visited', 'true')
       return true
     }
     return false
@@ -388,7 +388,7 @@ export default function OriInterviewer() {
   const generateReturningGreeting = async (): Promise<string> => {
     try {
       // Get last session summary from localStorage
-      const lastSession = localStorage.getItem('memoirark-last-session')
+      const lastSession = localStorage.getItem('origins-last-session')
       
       // Fetch recent events for context
       let recentEvents: Array<{ title: string; summary?: string; emotionTags?: string[]; date?: string }> = []
@@ -403,12 +403,36 @@ export default function OriInterviewer() {
       }
 
       // Fetch artifacts (uploaded documents) for context
-      let artifacts: Array<{ type: string; shortDescription: string; transcribedText?: string; sourceSystem?: string }> = []
+      let artifacts: Array<{ id: string; type: string; shortDescription: string; transcribedText?: string; sourceSystem?: string }> = []
+      let artifactAnalyses: Array<{ name: string; analysis: any }> = []
       try {
         const artifactsResponse = await fetch('http://localhost:3001/api/artifacts')
         if (artifactsResponse.ok) {
           const allArtifacts = await artifactsResponse.json()
-          artifacts = allArtifacts.slice(0, 10)
+          artifacts = allArtifacts.slice(0, 5) // Limit to 5 for performance
+          
+          // Pre-analyze artifacts that have content but haven't been analyzed yet
+          for (const artifact of artifacts) {
+            if (artifact.transcribedText || artifact.shortDescription) {
+              try {
+                const analysisResponse = await fetch(`http://localhost:3001/api/artifacts/${artifact.id}/analyze`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                })
+                if (analysisResponse.ok) {
+                  const data = await analysisResponse.json()
+                  if (data.analysis) {
+                    artifactAnalyses.push({
+                      name: artifact.shortDescription || artifact.type,
+                      analysis: data.analysis
+                    })
+                  }
+                }
+              } catch (e) {
+                console.log('Could not analyze artifact:', artifact.id)
+              }
+            }
+          }
         }
       } catch (e) {
         console.log('Could not fetch artifacts for greeting')
@@ -425,7 +449,7 @@ export default function OriInterviewer() {
         `"${e.title}"${e.summary ? ` - ${e.summary.slice(0, 100)}` : ''}${e.emotionTags?.length ? ` (${e.emotionTags.slice(0, 2).join(', ')})` : ''}`
       ).join('; ')
 
-      // Build artifact summaries
+      // Build artifact summaries with AI analysis
       const artifactSummaries = artifacts.map((a) => {
         let summary = `[${a.type.toUpperCase()}] ${a.shortDescription || 'Untitled'}`
         if (a.transcribedText) {
@@ -433,6 +457,20 @@ export default function OriInterviewer() {
         }
         return summary
       }).join('\n')
+
+      // Build detailed analysis summaries for pointed questions
+      const detailedAnalyses = artifactAnalyses.map((aa) => {
+        const a = aa.analysis
+        return `
+ARTIFACT: "${aa.name}"
+- Summary: ${a.summary || 'No summary'}
+- Key Themes: ${a.keyThemes?.join(', ') || 'None identified'}
+- People Mentioned: ${a.peopleIdentified?.join(', ') || 'None'}
+- Emotional Tone: ${a.emotionalTone || 'Unknown'}
+- Time Period: ${a.timePeriod || 'Unknown'}
+- Story Elements: ${a.storyElements?.join('; ') || 'None'}
+- Suggested Questions: ${a.followUpQuestions?.join(' | ') || 'None'}`
+      }).join('\n\n')
 
       // Determine if we have sparse data (just dates, no real content)
       const hasRichContent = recentEvents.some(e => 
@@ -469,6 +507,13 @@ ${eventSummaries || 'None yet'}
 UPLOADED ARTIFACTS (documents, photos, audio, etc.):
 ${artifactSummaries || 'None yet'}
 ARTIFACT COUNT: ${artifactCount}
+
+${detailedAnalyses ? `
+DETAILED ARTIFACT ANALYSIS (I have pre-read these files):
+${detailedAnalyses}
+
+IMPORTANT: Use the analysis above to ask SPECIFIC, POINTED questions about what you found in their documents. Reference actual themes, people, and story elements from the analysis. Show that you've actually read and understood their materials.
+` : ''}
 
 DATA RICHNESS: ${isSparseData ? 'SPARSE - User has only basic dates/milestones, no detailed stories yet' : 'Has some content to work with'}
 EVENT COUNT: ${eventCount}
@@ -616,7 +661,7 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
         .map(cm => cm.chapter_theme)
         .filter(Boolean)
       
-      localStorage.setItem('memoirark-last-session', JSON.stringify({
+      localStorage.setItem('origins-last-session', JSON.stringify({
         date: new Date().toISOString(),
         topics: topics.length > 0 ? topics : extractTopicsFromText(allText),
         emotions: [...new Set(emotions)],
@@ -993,7 +1038,7 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
                   onChange={(e) => {
                     const newData = { ...birthData, date: e.target.value || null }
                     setBirthData(newData)
-                    localStorage.setItem('memoirark-birth-data', JSON.stringify(newData))
+                    localStorage.setItem('origins-birth-data', JSON.stringify(newData))
                   }}
                   className="w-full px-3 py-2 border rounded-lg bg-background"
                 />
@@ -1007,7 +1052,7 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
                   onChange={(e) => {
                     const newData = { ...birthData, time: e.target.value || null }
                     setBirthData(newData)
-                    localStorage.setItem('memoirark-birth-data', JSON.stringify(newData))
+                    localStorage.setItem('origins-birth-data', JSON.stringify(newData))
                   }}
                   className="w-full px-3 py-2 border rounded-lg bg-background"
                 />
@@ -1023,7 +1068,7 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
                   onChange={(e) => {
                     const newData = { ...birthData, place: e.target.value || null }
                     setBirthData(newData)
-                    localStorage.setItem('memoirark-birth-data', JSON.stringify(newData))
+                    localStorage.setItem('origins-birth-data', JSON.stringify(newData))
                   }}
                   className="w-full px-3 py-2 border rounded-lg bg-background"
                 />
@@ -1038,7 +1083,7 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
                   onChange={(e) => {
                     const newData = { ...birthData, astroEnabled: e.target.checked }
                     setBirthData(newData)
-                    localStorage.setItem('memoirark-birth-data', JSON.stringify(newData))
+                    localStorage.setItem('origins-birth-data', JSON.stringify(newData))
                   }}
                   className="w-4 h-4"
                   disabled={!birthData.time || !birthData.place}
@@ -1085,7 +1130,7 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
           onComplete={(estimatedTime) => {
             const newData = { ...birthData, time: estimatedTime }
             setBirthData(newData)
-            localStorage.setItem('memoirark-birth-data', JSON.stringify(newData))
+            localStorage.setItem('origins-birth-data', JSON.stringify(newData))
             setShowRectification(false)
             setShowAstroSettings(true)
           }}

@@ -115,7 +115,7 @@ export default function Dashboard() {
       <div className="relative overflow-hidden rounded-2xl gradient-hero p-8 md:p-10">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-transparent" />
         <div className="relative">
-          <h1 className="text-3xl md:text-4xl font-display text-foreground mb-2">Welcome to MemoirArk</h1>
+          <h1 className="text-3xl md:text-4xl font-display text-foreground mb-2">Welcome to Origins</h1>
           <p className="text-lg text-muted-foreground mb-6">Where your story finds its voice</p>
           
           <blockquote className="border-l-2 border-primary/40 pl-4 py-1">

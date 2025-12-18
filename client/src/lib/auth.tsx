@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_URL } from './api';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = API_URL;
 
 interface User {
   id: string;
@@ -23,7 +24,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const TOKEN_KEY = 'memoirark-auth-token';
+const TOKEN_KEY = 'origins-auth-token';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

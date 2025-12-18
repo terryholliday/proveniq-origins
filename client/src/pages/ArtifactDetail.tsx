@@ -1,18 +1,27 @@
+import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { artifactsApi } from '@/lib/api'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { artifactsApi, ArtifactAnalysis } from '@/lib/api'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Pencil, Calendar, Users, FileAudio } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { ArrowLeft, Pencil, Calendar, Users, FileAudio, Sparkles, MessageCircle, Loader2, Tag, Clock, Heart, Plus, UserPlus } from 'lucide-react'
 
 export default function ArtifactDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [analysis, setAnalysis] = useState<ArtifactAnalysis['analysis'] | null>(null)
 
   const { data: artifact, isLoading } = useQuery({
     queryKey: ['artifact', id],
     queryFn: () => artifactsApi.getById(id!),
     enabled: !!id,
+  })
+
+  const analyzeMutation = useMutation({
+    mutationFn: () => artifactsApi.analyze(id!),
+    onSuccess: (data) => {
+      setAnalysis(data.analysis)
+    },
   })
 
   const formatDate = (dateString: string | null) => {
@@ -117,6 +126,170 @@ export default function ArtifactDetail() {
           </Card>
         )}
       </div>
+
+      {/* Ori AI Analysis Section */}
+      <Card className="border-amber-200 dark:border-amber-800 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-amber-600" />
+            Ori's Analysis
+          </CardTitle>
+          <CardDescription>
+            Let Ori analyze this artifact and help you build your story
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!analysis && !analyzeMutation.isPending && (
+            <div className="text-center py-4">
+              <p className="text-muted-foreground mb-4">
+                Ori can analyze this content to find story-worthy elements, identify people, and suggest next steps.
+              </p>
+              <Button 
+                onClick={() => analyzeMutation.mutate()}
+                disabled={!artifact.transcribedText && !artifact.shortDescription}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Ask Ori to Analyze
+              </Button>
+              {!artifact.transcribedText && !artifact.shortDescription && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  No content available to analyze. Add a description or transcribed text first.
+                </p>
+              )}
+            </div>
+          )}
+
+          {analyzeMutation.isPending && (
+            <div className="flex items-center justify-center py-8 gap-3">
+              <Loader2 className="w-5 h-5 animate-spin text-amber-600" />
+              <span className="text-muted-foreground">Ori is reading and analyzing...</span>
+            </div>
+          )}
+
+          {analysis && (
+            <div className="space-y-6">
+              {/* Ori's Message */}
+              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center flex-shrink-0">
+                    <MessageCircle className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-amber-700 dark:text-amber-400 mb-1">Ori says:</p>
+                    <p className="text-foreground leading-relaxed">{analysis.oriMessage}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Themes & Emotional Tone */}
+              <div className="grid gap-4 md:grid-cols-2">
+                {analysis.keyThemes?.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
+                      <Tag className="w-4 h-4" />
+                      Key Themes
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {analysis.keyThemes.map((theme, i) => (
+                        <span key={i} className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
+                          {theme}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {analysis.emotionalTone && (
+                  <div>
+                    <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
+                      <Heart className="w-4 h-4" />
+                      Emotional Tone
+                    </h4>
+                    <p className="text-muted-foreground">{analysis.emotionalTone}</p>
+                  </div>
+                )}
+
+                {analysis.timePeriod && (
+                  <div>
+                    <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
+                      <Clock className="w-4 h-4" />
+                      Time Period
+                    </h4>
+                    <p className="text-muted-foreground">{analysis.timePeriod}</p>
+                  </div>
+                )}
+
+                {analysis.peopleIdentified?.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
+                      <Users className="w-4 h-4" />
+                      People Identified
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {analysis.peopleIdentified.map((person, i) => (
+                        <span key={i} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs">
+                          {person}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Follow-up Questions */}
+              {analysis.followUpQuestions?.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-3">Ori wants to explore:</h4>
+                  <div className="space-y-2">
+                    {analysis.followUpQuestions.map((question, i) => (
+                      <div key={i} className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
+                        <span className="text-amber-600 font-medium">{i + 1}.</span>
+                        <p className="text-sm">{question}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Suggested Actions */}
+              {analysis.suggestedActions?.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-3">Suggested next steps:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {analysis.suggestedActions.map((action, i) => (
+                      <Button key={i} variant="outline" size="sm" asChild>
+                        <Link to={
+                          action.action === 'create_event' ? '/events/new' :
+                          action.action === 'link_person' ? '/people/new' :
+                          '#'
+                        }>
+                          {action.action === 'create_event' && <Plus className="w-3 h-3 mr-1" />}
+                          {action.action === 'link_person' && <UserPlus className="w-3 h-3 mr-1" />}
+                          {action.reason}
+                        </Link>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Re-analyze button */}
+              <div className="pt-2 border-t">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => analyzeMutation.mutate()}
+                  disabled={analyzeMutation.isPending}
+                >
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  Re-analyze
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

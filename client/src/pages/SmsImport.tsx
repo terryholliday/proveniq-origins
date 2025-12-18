@@ -134,7 +134,7 @@ export default function SmsImport() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Import SMS Messages</h1>
         <p className="text-muted-foreground">
-          Import your Android text message history into MemoirArk
+          Import your Android text message history into Origins
         </p>
       </div>
 
@@ -428,7 +428,7 @@ export default function SmsImport() {
           <CardHeader>
             <CardTitle>Import Options</CardTitle>
             <CardDescription>
-              Configure how the conversations should be imported into MemoirArk
+              Configure how the conversations should be imported into Origins
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -532,7 +532,7 @@ export default function SmsImport() {
               Import Complete!
             </CardTitle>
             <CardDescription>
-              Your SMS conversations have been imported into MemoirArk
+              Your SMS conversations have been imported into Origins
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

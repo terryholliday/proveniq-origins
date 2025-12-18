@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, ArrowLeft, X, BookOpen, Calendar, Users, FileText, Sparkles, Clock, Search, Tag, FolderOpen } from 'lucide-react'
+import { ArrowRight, ArrowLeft, X, BookOpen, Calendar, Users, Clock, Search, Tag, FolderOpen, Home } from 'lucide-react'
 
 interface TourStep {
   target: string
@@ -10,6 +10,7 @@ interface TourStep {
   icon: React.ElementType
   position?: 'top' | 'bottom' | 'left' | 'right'
   route?: string
+  dropdownTrigger?: string // Selector for dropdown to open first
 }
 
 const tourSteps: TourStep[] = [
@@ -17,7 +18,7 @@ const tourSteps: TourStep[] = [
     target: '[data-tour="dashboard"]',
     title: 'Your Dashboard',
     description: 'This is your home base. See stats about your memoir at a glance—events recorded, people mentioned, chapters written.',
-    icon: BookOpen,
+    icon: Home,
     route: '/',
   },
   {
@@ -27,45 +28,36 @@ const tourSteps: TourStep[] = [
     icon: Clock,
   },
   {
-    target: '[data-tour="events"]',
-    title: 'Events',
-    description: 'The heart of your memoir. Each event is a moment—a memory, a turning point, a quiet afternoon that changed everything.',
-    icon: Calendar,
+    target: '[data-tour="my-story"]',
+    title: 'My Story',
+    description: 'Your memoir content lives here—life events, the people in your story, photos and artifacts, chapters, and meaningful synchronicities.',
+    icon: BookOpen,
   },
   {
-    target: '[data-tour="chapters"]',
-    title: 'Chapters',
-    description: 'Organize your events into chapters. Structure your story the way you want it told.',
-    icon: BookOpen,
+    target: '[data-tour="events"]',
+    title: 'Life Events',
+    description: 'The heart of your memoir. Each event is a moment—a memory, a turning point, a quiet afternoon that changed everything.',
+    icon: Calendar,
+    dropdownTrigger: '[data-tour="my-story"]',
   },
   {
     target: '[data-tour="people"]',
     title: 'People',
     description: 'The cast of your life. Parents, friends, lovers, mentors—everyone who shaped your journey.',
     icon: Users,
+    dropdownTrigger: '[data-tour="my-story"]',
   },
   {
-    target: '[data-tour="artifacts"]',
-    title: 'Artifacts',
-    description: 'Photos, letters, recordings, documents. The tangible pieces of your past.',
-    icon: FileText,
+    target: '[data-tour="chapters"]',
+    title: 'Chapters',
+    description: 'Organize your events into chapters. Structure your story the way you want it told.',
+    icon: BookOpen,
+    dropdownTrigger: '[data-tour="my-story"]',
   },
   {
-    target: '[data-tour="synchronicities"]',
-    title: 'Synchronicities',
-    description: 'Those meaningful coincidences. Patterns that emerged. Moments when the universe seemed to wink.',
-    icon: Sparkles,
-  },
-  {
-    target: '[data-tour="tags"]',
-    title: 'Tags',
-    description: 'Label your events with emotions, themes, or any category that helps you find patterns.',
-    icon: Tag,
-  },
-  {
-    target: '[data-tour="collections"]',
-    title: 'Collections',
-    description: 'Group related events, people, and artifacts together. Create thematic bundles of your story.',
+    target: '[data-tour="organize"]',
+    title: 'Organize',
+    description: 'Find, tag, and group your memories. Search across everything, add tags for themes, and create collections.',
     icon: FolderOpen,
   },
   {
@@ -73,6 +65,21 @@ const tourSteps: TourStep[] = [
     title: 'Search',
     description: 'Find anything in your memoir. Search across all your events, people, and artifacts.',
     icon: Search,
+    dropdownTrigger: '[data-tour="organize"]',
+  },
+  {
+    target: '[data-tour="tags"]',
+    title: 'Tags',
+    description: 'Label your events with emotions, themes, or any category that helps you find patterns.',
+    icon: Tag,
+    dropdownTrigger: '[data-tour="organize"]',
+  },
+  {
+    target: '[data-tour="collections"]',
+    title: 'Collections',
+    description: 'Group related events, people, and artifacts together. Create thematic bundles of your story.',
+    icon: FolderOpen,
+    dropdownTrigger: '[data-tour="organize"]',
   },
 ]
 
@@ -92,15 +99,42 @@ export default function OnboardingTour({ onComplete }: OnboardingTourProps) {
     const target = document.querySelector(step.target)
     if (target) {
       setTargetRect(target.getBoundingClientRect())
+    } else {
+      setTargetRect(null)
     }
   }, [step.target])
+
+  // Close any open dropdowns when tour step changes
+  const closeAllDropdowns = useCallback(() => {
+    // Press Escape to close any open dropdown
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+  }, [])
+
+  // Open dropdown if needed for this step
+  const openDropdownIfNeeded = useCallback(() => {
+    if (step.dropdownTrigger) {
+      const trigger = document.querySelector(step.dropdownTrigger) as HTMLElement
+      if (trigger) {
+        trigger.click()
+        // Wait for dropdown to open, then find target
+        setTimeout(updateTargetPosition, 150)
+      }
+    } else {
+      updateTargetPosition()
+    }
+  }, [step.dropdownTrigger, updateTargetPosition])
 
   useEffect(() => {
     if (step.route) {
       navigate(step.route)
     }
     
-    const timer = setTimeout(updateTargetPosition, 100)
+    // Close previous dropdowns first
+    closeAllDropdowns()
+    
+    // Small delay then open dropdown if needed
+    const timer = setTimeout(openDropdownIfNeeded, 100)
+    
     window.addEventListener('resize', updateTargetPosition)
     window.addEventListener('scroll', updateTargetPosition)
 
@@ -109,7 +143,7 @@ export default function OnboardingTour({ onComplete }: OnboardingTourProps) {
       window.removeEventListener('resize', updateTargetPosition)
       window.removeEventListener('scroll', updateTargetPosition)
     }
-  }, [step, navigate, updateTargetPosition])
+  }, [step, navigate, updateTargetPosition, closeAllDropdowns, openDropdownIfNeeded])
 
   const handleNext = () => {
     if (currentStep < tourSteps.length - 1) {
@@ -127,7 +161,7 @@ export default function OnboardingTour({ onComplete }: OnboardingTourProps) {
 
   const handleComplete = () => {
     setIsVisible(false)
-    localStorage.setItem('memoirark-tour-completed', 'true')
+    localStorage.setItem('origins-tour-completed', 'true')
     onComplete()
   }
 
@@ -269,7 +303,7 @@ export function useTourState() {
   const [showTour, setShowTour] = useState(false)
 
   useEffect(() => {
-    const completed = localStorage.getItem('memoirark-tour-completed')
+    const completed = localStorage.getItem('origins-tour-completed')
     if (!completed) {
       const timer = setTimeout(() => setShowTour(true), 500)
       return () => clearTimeout(timer)
@@ -279,7 +313,7 @@ export function useTourState() {
   const startTour = () => setShowTour(true)
   const endTour = () => setShowTour(false)
   const resetTour = () => {
-    localStorage.removeItem('memoirark-tour-completed')
+    localStorage.removeItem('origins-tour-completed')
     setShowTour(true)
   }
 

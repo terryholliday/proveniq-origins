@@ -384,6 +384,66 @@ uploadRoutes.post('/document', uploadDocument.single('document'), async (req: Re
       console.error('Document extraction error:', err);
     }
 
+    // If we extracted text, trigger AI analysis
+    let aiAnalysis = null;
+    if (extractedText) {
+      try {
+        const openaiKey = process.env.OPENAI_API_KEY;
+        if (openaiKey) {
+          const fetch = require('node-fetch');
+          const analysisResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${openaiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [
+                {
+                  role: 'system',
+                  content: `You are Ori, a master biographer and journalist. A user just uploaded a document. Analyze it and respond in JSON:
+{
+  "summary": "2-3 sentence summary",
+  "keyThemes": ["theme1", "theme2"],
+  "peopleIdentified": ["name1", "name2"],
+  "emotionalTone": "The emotional quality",
+  "followUpQuestions": ["Question 1", "Question 2", "Question 3"],
+  "oriMessage": "A warm journalist-style message about what you found and what you'd like to explore"
+}`
+                },
+                {
+                  role: 'user',
+                  content: `Analyze this document:\n\n${extractedText.substring(0, 6000)}`
+                }
+              ],
+              max_tokens: 1000,
+              temperature: 0.7,
+            }),
+          });
+
+          if (analysisResponse.ok) {
+            const data = await analysisResponse.json();
+            const content = data.choices?.[0]?.message?.content || '';
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              aiAnalysis = JSON.parse(jsonMatch[0]);
+              // Update artifact with summary
+              await prisma.artifact.update({
+                where: { id: artifact.id },
+                data: { 
+                  transcribedText: extractedText,
+                  shortDescription: aiAnalysis.summary || shortDescription || req.file.originalname,
+                },
+              });
+            }
+          }
+        }
+      } catch (aiError) {
+        console.error('AI analysis error:', aiError);
+      }
+    }
+
     res.status(201).json({
       artifact,
       file: {
@@ -394,7 +454,12 @@ uploadRoutes.post('/document', uploadDocument.single('document'), async (req: Re
         path: `/uploads/documents/${req.file.filename}`,
       },
       extractedText,
-      message: extractedText ? 'Document uploaded and text extracted. Review below.' : 'Document uploaded. Could not extract text automatically.',
+      aiAnalysis,
+      message: aiAnalysis 
+        ? 'Document uploaded and analyzed by Ori.' 
+        : extractedText 
+          ? 'Document uploaded and text extracted.' 
+          : 'Document uploaded. Could not extract text automatically.',
     });
   } catch (error) {
     console.error('Error uploading document:', error);

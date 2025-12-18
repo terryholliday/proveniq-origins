@@ -416,7 +416,7 @@ messengerImportRoutes.get('/instructions', (req: Request, res: Response) => {
       },
       {
         step: 7,
-        title: 'Upload to MemoirArk',
+        title: 'Upload to Origins',
         description: 'Upload the message_1.json file from any conversation folder',
       },
     ],

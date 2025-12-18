@@ -333,7 +333,7 @@ chatgptImportRoutes.get('/instructions', (req: Request, res: Response) => {
       },
       {
         step: 6,
-        title: 'Upload to MemoirArk',
+        title: 'Upload to Origins',
         description: 'Upload conversations.json here to preview and import your conversations',
       },
     ],

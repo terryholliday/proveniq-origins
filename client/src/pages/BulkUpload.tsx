@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { API_URL } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -43,7 +44,7 @@ export default function BulkUpload() {
       const formData = new FormData()
       files.forEach(file => formData.append('files', file))
       
-      const response = await fetch('http://localhost:3001/api/uploads/bulk', {
+      const response = await fetch(`${API_URL}/uploads/bulk`, {
         method: 'POST',
         body: formData,
       })

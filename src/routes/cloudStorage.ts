@@ -112,12 +112,13 @@ cloudStorageRoutes.get('/google/files', async (req: Request, res: Response) => {
     }
     
     // Filter by mime type if specified (e.g., images, documents)
+    // Always include folders so users can navigate
     if (mimeType === 'images') {
-      query += " and (mimeType contains 'image/')";
+      query += " and (mimeType contains 'image/' or mimeType = 'application/vnd.google-apps.folder')";
     } else if (mimeType === 'documents') {
-      query += " and (mimeType contains 'document' or mimeType contains 'text/' or mimeType = 'application/pdf')";
+      query += " and (mimeType contains 'document' or mimeType contains 'text/' or mimeType = 'application/pdf' or mimeType = 'application/vnd.google-apps.document' or mimeType = 'application/vnd.google-apps.spreadsheet' or mimeType = 'application/vnd.google-apps.folder')";
     } else if (mimeType === 'audio') {
-      query += " and (mimeType contains 'audio/')";
+      query += " and (mimeType contains 'audio/' or mimeType = 'application/vnd.google-apps.folder')";
     }
 
     const response = await drive.files.list({
@@ -184,6 +185,123 @@ cloudStorageRoutes.get('/google/download/:fileId', async (req: Request, res: Res
 cloudStorageRoutes.post('/google/disconnect', (req: Request, res: Response) => {
   googleTokens = null;
   res.json({ success: true });
+});
+
+// POST /api/cloud/import - Import a file from cloud storage
+cloudStorageRoutes.post('/import', async (req: Request, res: Response) => {
+  const { provider, fileId, fileName, mimeType, content, artifactType } = req.body;
+
+  if (!content || !fileName) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const { prisma } = require('../lib/prisma');
+    const { extractContent } = require('../services/contentExtractor');
+
+    // Create uploads directory if needed
+    const uploadsDir = path.join(process.cwd(), 'uploads', 'cloud');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    // Save file
+    const safeFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const filePath = path.join(uploadsDir, `${Date.now()}-${safeFileName}`);
+    const fileBuffer = Buffer.from(content, 'base64');
+    fs.writeFileSync(filePath, fileBuffer);
+
+    // Create artifact record
+    const artifact = await prisma.artifact.create({
+      data: {
+        type: artifactType || 'document',
+        sourceSystem: provider || 'cloud',
+        sourcePathOrUrl: `/uploads/cloud/${path.basename(filePath)}`,
+        shortDescription: fileName,
+        importedFrom: `${provider}:${fileId}`,
+      },
+    });
+
+    // Extract content from file
+    let extractedText = '';
+    let aiAnalysis = null;
+    
+    try {
+      const result = await extractContent(filePath, mimeType, artifact.id);
+      extractedText = result.text || '';
+      
+      // Update artifact with extracted text
+      if (extractedText) {
+        await prisma.artifact.update({
+          where: { id: artifact.id },
+          data: { transcribedText: extractedText },
+        });
+
+        // Trigger AI analysis
+        const openaiKey = process.env.OPENAI_API_KEY;
+        if (openaiKey) {
+          const fetch = require('node-fetch');
+          const analysisResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${openaiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [
+                {
+                  role: 'system',
+                  content: `You are Ori, a master biographer. Analyze this document and respond in JSON:
+{
+  "summary": "2-3 sentence summary",
+  "keyThemes": ["theme1", "theme2"],
+  "peopleIdentified": ["name1", "name2"],
+  "emotionalTone": "The emotional quality",
+  "oriMessage": "A warm message about what you found"
+}`
+                },
+                {
+                  role: 'user',
+                  content: `Analyze this ${artifactType} titled "${fileName}":\n\n${extractedText.substring(0, 6000)}`
+                }
+              ],
+              max_tokens: 800,
+              temperature: 0.7,
+            }),
+          });
+
+          if (analysisResponse.ok) {
+            const data = await analysisResponse.json();
+            const responseContent = data.choices?.[0]?.message?.content || '';
+            const jsonMatch = responseContent.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              aiAnalysis = JSON.parse(jsonMatch[0]);
+              // Update with AI summary
+              await prisma.artifact.update({
+                where: { id: artifact.id },
+                data: { shortDescription: aiAnalysis.summary || fileName },
+              });
+            }
+          }
+        }
+      }
+    } catch (extractError) {
+      console.error('Content extraction error:', extractError);
+    }
+
+    res.json({
+      success: true,
+      artifact,
+      extractedText: extractedText ? extractedText.substring(0, 500) : null,
+      aiAnalysis,
+    });
+  } catch (error) {
+    console.error('Cloud import error:', error);
+    res.status(500).json({ error: 'Failed to import file' });
+  }
 });
 
 // ============================================

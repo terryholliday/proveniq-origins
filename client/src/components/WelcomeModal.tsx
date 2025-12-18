@@ -17,7 +17,7 @@ interface SessionActivity {
 
 function getLastSession(): SessionActivity | null {
   try {
-    const stored = localStorage.getItem('memoirark-last-session')
+    const stored = localStorage.getItem('origins-last-session')
     if (stored) {
       return JSON.parse(stored)
     }
@@ -36,7 +36,7 @@ function saveCurrentSession(activity: Partial<SessionActivity>) {
     artifactsAdded: 0,
   }
   localStorage.setItem(
-    'memoirark-last-session',
+    'origins-last-session',
     JSON.stringify({ ...current, ...activity, timestamp: new Date().toISOString() })
   )
 }

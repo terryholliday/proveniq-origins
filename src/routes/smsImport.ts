@@ -531,7 +531,7 @@ smsImportRoutes.get('/instructions', (req: Request, res: Response) => {
       },
       {
         step: 7,
-        title: 'Upload to MemoirArk',
+        title: 'Upload to Origins',
         description: 'Upload the .xml file here to preview and import your text message history',
       },
     ],

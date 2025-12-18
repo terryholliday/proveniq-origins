@@ -103,7 +103,7 @@ export default function MessengerImport() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Import Messenger</h1>
         <p className="text-muted-foreground">
-          Import your Facebook Messenger conversations into MemoirArk
+          Import your Facebook Messenger conversations into Origins
         </p>
       </div>
 
@@ -341,7 +341,7 @@ export default function MessengerImport() {
           <CardHeader>
             <CardTitle>Import Options</CardTitle>
             <CardDescription>
-              Configure how the conversation should be imported into MemoirArk
+              Configure how the conversation should be imported into Origins
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -445,7 +445,7 @@ export default function MessengerImport() {
               Import Complete!
             </CardTitle>
             <CardDescription>
-              Your Messenger conversation has been imported into MemoirArk
+              Your Messenger conversation has been imported into Origins
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

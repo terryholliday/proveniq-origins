@@ -60,7 +60,7 @@ exportRoutes.get('/json', async (req: Request, res: Response) => {
     };
 
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', 'attachment; filename=memoirark-export.json');
+    res.setHeader('Content-Disposition', 'attachment; filename=origins-export.json');
     res.json(exportData);
   } catch (error) {
     console.error('Error exporting JSON:', error);
@@ -87,7 +87,7 @@ exportRoutes.get('/markdown', async (req: Request, res: Response) => {
       orderBy: { number: 'asc' },
     });
 
-    let markdown = '# MemoirArk — Draft Export\n\n';
+    let markdown = '# Origins — Draft Export\n\n';
     markdown += `*Exported on ${new Date().toLocaleDateString()}*\n\n`;
     markdown += '---\n\n';
 
@@ -166,7 +166,7 @@ exportRoutes.get('/markdown', async (req: Request, res: Response) => {
     });
 
     res.setHeader('Content-Type', 'text/markdown');
-    res.setHeader('Content-Disposition', 'attachment; filename=memoirark-draft.md');
+    res.setHeader('Content-Disposition', 'attachment; filename=origins-draft.md');
     res.send(markdown);
   } catch (error) {
     console.error('Error exporting Markdown:', error);

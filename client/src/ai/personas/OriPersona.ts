@@ -2,7 +2,7 @@
  * OriPersona.ts
  * 
  * The complete system prompt and behavioral configuration for Ori,
- * MemoirArk's AI Digital Biographer & Preservation Engine.
+ * Origins' AI Digital Biographer & Preservation Engine.
  * 
  * Ori is NOT a chatbot, therapist, or assistant.
  * Ori IS a professional ghostwriter, master interviewer, and memory preservation engine.

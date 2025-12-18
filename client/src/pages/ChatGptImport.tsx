@@ -5,22 +5,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { 
-  Upload, 
-  MessageSquare, 
-  Calendar, 
-  FileText, 
-  CheckCircle2, 
-  AlertCircle,
-  Loader2,
+  Upload,
+  FileJson,
+  MessageSquare,
   ChevronRight,
-  ArrowRight,
-  ArrowLeft,
-  Bot,
-  ExternalLink,
+  Loader2,
+  Check,
+  X,
+  Calendar,
   User
 } from 'lucide-react'
+import { API_URL } from '@/lib/api'
 
-const API_BASE = 'http://localhost:3001/api'
+const API_BASE = API_URL
 
 interface ConversationPreview {
   id: string

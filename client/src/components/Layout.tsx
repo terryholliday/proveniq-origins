@@ -31,19 +31,19 @@ export default function Layout({ children, theme, toggleTheme }: LayoutProps) {
 
   // Primary nav items (always visible with labels)
   const primaryNav = [
-    { path: '/', label: 'Home', icon: Home },
+    { path: '/', label: 'Home', icon: Home, tourId: 'dashboard' },
     { path: '/wizard', label: 'Talk to Ori', icon: MessageCircle, featured: true },
-    { path: '/timeline', label: 'Timeline', icon: Clock },
+    { path: '/timeline', label: 'Timeline', icon: Clock, tourId: 'timeline' },
     { path: '/insights', label: 'Insights', icon: Lightbulb },
   ]
 
   // Dropdown menus
   const contentMenu = [
-    { path: '/events', label: 'Life Events', icon: Calendar, desc: 'Your memories and moments' },
-    { path: '/people', label: 'People', icon: Users, desc: 'Those who shaped your story' },
-    { path: '/artifacts', label: 'Artifacts', icon: FileText, desc: 'Photos, documents, treasures' },
-    { path: '/chapters', label: 'Chapters', icon: BookOpen, desc: 'Your memoir structure' },
-    { path: '/synchronicities', label: 'Synchronicities', icon: Sparkles, desc: 'Meaningful coincidences' },
+    { path: '/events', label: 'Life Events', icon: Calendar, desc: 'Your memories and moments', tourId: 'events' },
+    { path: '/people', label: 'People', icon: Users, desc: 'Those who shaped your story', tourId: 'people' },
+    { path: '/artifacts', label: 'Artifacts', icon: FileText, desc: 'Photos, documents, treasures', tourId: 'artifacts' },
+    { path: '/chapters', label: 'Chapters', icon: BookOpen, desc: 'Your memoir structure', tourId: 'chapters' },
+    { path: '/synchronicities', label: 'Synchronicities', icon: Sparkles, desc: 'Meaningful coincidences', tourId: 'synchronicities' },
     { path: '/family-tree', label: 'Family Tree', icon: TreePine, desc: 'Your lineage' },
   ]
 
@@ -55,21 +55,21 @@ export default function Layout({ children, theme, toggleTheme }: LayoutProps) {
   ]
 
   const organizeMenu = [
-    { path: '/search', label: 'Search', icon: Search, desc: 'Find anything' },
-    { path: '/tags', label: 'Tags', icon: Tag, desc: 'Organize by theme' },
-    { path: '/collections', label: 'Collections', icon: FolderOpen, desc: 'Group related items' },
+    { path: '/search', label: 'Search', icon: Search, desc: 'Find anything', tourId: 'search' },
+    { path: '/tags', label: 'Tags', icon: Tag, desc: 'Organize by theme', tourId: 'tags' },
+    { path: '/collections', label: 'Collections', icon: FolderOpen, desc: 'Group related items', tourId: 'collections' },
   ]
 
   const moreMenu = [
     { path: '/export', label: 'Export Memoir', icon: Download, desc: 'Download your story' },
     { path: '/manage/songs', label: 'Soundtrack', icon: Music, desc: 'Songs of your life' },
-    { path: '/guide', label: 'Help & Guide', icon: HelpCircle, desc: 'How to use MemoirArk' },
+    { path: '/guide', label: 'Help & Guide', icon: HelpCircle, desc: 'How to use Origins' },
   ]
 
-  const NavDropdown = ({ label, items, icon: Icon }: { label: string; items: typeof contentMenu; icon: any }) => (
+  const NavDropdown = ({ label, items, icon: Icon, tourId }: { label: string; items: typeof contentMenu; icon: any; tourId?: string }) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="flex items-center gap-1.5 h-9 px-3">
+        <Button variant="ghost" className="flex items-center gap-1.5 h-9 px-3" data-tour={tourId}>
           <Icon className="h-4 w-4" />
           <span>{label}</span>
           <ChevronDown className="h-3 w-3 opacity-50" />
@@ -87,6 +87,7 @@ export default function Layout({ children, theme, toggleTheme }: LayoutProps) {
                   "flex items-start gap-3 p-2 cursor-pointer",
                   isActive && "bg-primary/5"
                 )}
+                data-tour={item.tourId}
               >
                 <ItemIcon className={cn("h-5 w-5 mt-0.5", isActive ? "text-primary" : "text-muted-foreground")} />
                 <div>
@@ -123,6 +124,7 @@ export default function Layout({ children, theme, toggleTheme }: LayoutProps) {
                 <Link
                   key={item.path}
                   to={item.path}
+                  data-tour={item.tourId}
                   className={cn(
                     'flex items-center gap-1.5 px-3 h-9 rounded-lg text-sm font-medium transition-colors',
                     item.featured 
@@ -141,9 +143,9 @@ export default function Layout({ children, theme, toggleTheme }: LayoutProps) {
             <div className="w-px h-6 bg-border mx-2" />
 
             {/* Dropdown menus */}
-            <NavDropdown label="My Story" items={contentMenu} icon={BookOpen} />
+            <NavDropdown label="My Story" items={contentMenu} icon={BookOpen} tourId="my-story" />
             <NavDropdown label="Import" items={importMenu} icon={Upload} />
-            <NavDropdown label="Organize" items={organizeMenu} icon={FolderOpen} />
+            <NavDropdown label="Organize" items={organizeMenu} icon={FolderOpen} tourId="organize" />
             <NavDropdown label="More" items={moreMenu} icon={HelpCircle} />
           </nav>
 

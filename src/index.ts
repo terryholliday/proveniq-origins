@@ -66,13 +66,18 @@ app.use('/api/spotify', spotifyRoutes);
 app.use('/api/insights', insightsRoutes);
 
 // Favicon handler (no favicon, return 204)
-app.get('/favicon.ico', (req, res) => res.status(204).end());
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
 
-// Health check
+// Chrome DevTools request - return 204 to silence errors
+app.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => res.status(204).end());
+
+// Health check endpoint for Railway
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 MemoirArk server running at http://localhost:${PORT}`);
+  console.log(`🚀 Origins server running at http://localhost:${PORT}`);
 });

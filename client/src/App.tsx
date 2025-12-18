@@ -51,15 +51,15 @@ import Insights from './pages/Insights'
 
 function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const stored = localStorage.getItem('memoirark-theme')
+    const stored = localStorage.getItem('origins-theme')
     if (stored === 'light' || stored === 'dark') return stored
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
 
   const [showWelcome, setShowWelcome] = useState(() => {
-    const tourCompleted = localStorage.getItem('memoirark-tour-completed')
+    const tourCompleted = localStorage.getItem('origins-tour-completed')
     if (!tourCompleted) return false
-    const lastDismissed = localStorage.getItem('memoirark-welcome-dismissed')
+    const lastDismissed = localStorage.getItem('origins-welcome-dismissed')
     if (!lastDismissed) return true
     const dismissedTime = new Date(lastDismissed).getTime()
     const hoursSince = (Date.now() - dismissedTime) / (1000 * 60 * 60)
@@ -75,7 +75,7 @@ function App() {
     } else {
       root.classList.remove('dark')
     }
-    localStorage.setItem('memoirark-theme', theme)
+    localStorage.setItem('origins-theme', theme)
   }, [theme])
 
   const toggleTheme = () => {
@@ -84,7 +84,7 @@ function App() {
 
   const handleCloseWelcome = () => {
     setShowWelcome(false)
-    localStorage.setItem('memoirark-welcome-dismissed', new Date().toISOString())
+    localStorage.setItem('origins-welcome-dismissed', new Date().toISOString())
   }
 
   return (

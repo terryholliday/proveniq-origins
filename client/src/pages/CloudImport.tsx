@@ -16,8 +16,9 @@ import {
   ChevronRight,
   ArrowLeft,
 } from 'lucide-react'
+import { API_URL } from '@/lib/api'
 
-const API_BASE = 'http://localhost:3001/api'
+const API_BASE = API_URL
 
 interface CloudFile {
   id: string
@@ -139,6 +140,71 @@ export default function CloudImport() {
     }
     setSelectedFiles(newSelected)
   }
+
+  const [importProgress, setImportProgress] = useState<{ current: number; total: number; currentFile: string } | null>(null)
+
+  // Import selected files
+  const importMutation = useMutation({
+    mutationFn: async () => {
+      const selectedFilesArray = files.filter(f => selectedFiles.has(f.id))
+      setImportProgress({ current: 0, total: selectedFilesArray.length, currentFile: '' })
+
+      for (let i = 0; i < selectedFilesArray.length; i++) {
+        const file = selectedFilesArray[i]
+        setImportProgress({ current: i + 1, total: selectedFilesArray.length, currentFile: file.name })
+
+        // Download file from cloud provider
+        const downloadEndpoint = activeProvider === 'google'
+          ? `${API_BASE}/cloud/google/download/${file.id}`
+          : `${API_BASE}/cloud/dropbox/download?path=${encodeURIComponent(file.path || file.name)}`
+
+        const downloadRes = await fetch(downloadEndpoint)
+        if (!downloadRes.ok) {
+          console.error(`Failed to download ${file.name}`)
+          continue
+        }
+
+        const downloadData = await downloadRes.json()
+
+        // Determine artifact type based on mime type
+        let artifactType = 'document'
+        if (file.mimeType?.includes('image')) artifactType = 'photo'
+        else if (file.mimeType?.includes('audio')) artifactType = 'audio'
+        else if (file.mimeType?.includes('video')) artifactType = 'video'
+
+        // Create artifact and save file
+        const importRes = await fetch(`${API_BASE}/cloud/import`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: activeProvider,
+            fileId: file.id,
+            fileName: file.name,
+            mimeType: file.mimeType,
+            content: downloadData.content, // base64 encoded
+            artifactType,
+          }),
+        })
+
+        if (!importRes.ok) {
+          console.error(`Failed to import ${file.name}`)
+        }
+      }
+
+      setImportProgress(null)
+      return selectedFilesArray.length
+    },
+    onSuccess: (count) => {
+      setSelectedFiles(new Set())
+      queryClient.invalidateQueries({ queryKey: ['artifacts'] })
+      alert(`Successfully imported ${count} file(s)! Ori is analyzing them now.`)
+    },
+    onError: (error) => {
+      setImportProgress(null)
+      console.error('Import error:', error)
+      alert('Failed to import some files')
+    },
+  })
 
   const getFileIcon = (file: CloudFile) => {
     if (file.isFolder || file.mimeType?.includes('folder')) {
@@ -413,9 +479,22 @@ export default function CloudImport() {
                         <X className="w-4 h-4 mr-2" />
                         Clear
                       </Button>
-                      <Button size="sm">
-                        <Download className="w-4 h-4 mr-2" />
-                        Import Selected
+                      <Button 
+                        size="sm" 
+                        onClick={() => importMutation.mutate()}
+                        disabled={importMutation.isPending}
+                      >
+                        {importMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            {importProgress ? `${importProgress.current}/${importProgress.total}` : 'Importing...'}
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-4 h-4 mr-2" />
+                            Import Selected
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>

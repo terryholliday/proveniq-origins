@@ -1,7 +1,11 @@
 import axios from 'axios'
 
+// API base URL - uses environment variable in production, localhost in development
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+export const API_URL = `${API_BASE_URL}/api`
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${API_BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -312,6 +316,25 @@ export const artifactsApi = {
   delete: async (id: string): Promise<void> => {
     await api.delete(`/artifacts/${id}`)
   },
+  analyze: async (id: string): Promise<ArtifactAnalysis> => {
+    const { data } = await api.post(`/artifacts/${id}/analyze`)
+    return data
+  },
+}
+
+export interface ArtifactAnalysis {
+  success: boolean
+  analysis: {
+    summary: string
+    keyThemes: string[]
+    peopleIdentified: string[]
+    timePeriod?: string
+    emotionalTone?: string
+    storyElements: string[]
+    followUpQuestions: string[]
+    suggestedActions: Array<{ action: string; name?: string; reason: string }>
+    oriMessage: string
+  }
 }
 
 export const synchronicitiesApi = {

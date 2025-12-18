@@ -8,7 +8,7 @@ export const authRoutes = Router();
 const prisma = new PrismaClient();
 
 // Simple JWT-like token using HMAC (for single-user local app)
-const JWT_SECRET = process.env.JWT_SECRET || 'memoirark-dev-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'origins-dev-secret-change-in-production';
 
 interface TokenPayload {
   userId: string;

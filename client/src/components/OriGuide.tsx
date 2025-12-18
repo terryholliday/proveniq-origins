@@ -12,7 +12,7 @@ interface OriTip {
 
 // Contextual help - only shown when user explicitly clicks Ori or on first login
 const PAGE_HELP: Record<string, OriTip> = {
-  '/': { message: "Welcome to MemoirArk. Start by creating events from your memories, or talk to me in the Interview section.", mood: 'welcoming' },
+  '/': { message: "Welcome to Origins. Start by creating events from your memories, or talk to me in the Interview section.", mood: 'welcoming' },
   '/events': { message: "Events are the building blocks of your memoir. Click 'New Event' to add one.", mood: 'thinking' },
   '/events/new': { message: "Fill in what you remember. The date, title, and a summary are most important.", mood: 'encouraging' },
   '/people': { message: "Add the people who shaped your story. You can link them to events later.", mood: 'thinking' },
@@ -138,9 +138,9 @@ export default function OriGuide() {
   
   // Only show on first ever login
   const [hasShownWelcome] = useState(() => {
-    const shown = localStorage.getItem('memoirark-Ori-guide-shown')
+    const shown = localStorage.getItem('origins-ori-guide-shown')
     if (!shown) {
-      localStorage.setItem('memoirark-Ori-guide-shown', 'true')
+      localStorage.setItem('origins-ori-guide-shown', 'true')
       return false
     }
     return true

@@ -43,7 +43,7 @@ const guideSections: GuideSection[] = [
     id: 'getting-started',
     title: 'Getting Started',
     icon: BookOpen,
-    description: 'Welcome to MemoirArk! This guide will walk you through building your personal memoir from raw memories to a publishable narrative.',
+    description: 'Welcome to Origins! This guide will walk you through building your personal memoir from raw memories to a publishable narrative.',
     steps: [
       'Take the onboarding tour to familiarize yourself with the interface',
       'Start by creating your first Event—a significant memory or moment',
@@ -476,7 +476,7 @@ export default function UserGuide() {
             <div>
               <h2 className="text-xl font-semibold mb-2">Quick Start</h2>
               <p className="text-muted-foreground mb-4">
-                New to MemoirArk? Start here:
+                New to Origins? Start here:
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild>
@@ -591,12 +591,12 @@ export default function UserGuide() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
-            MemoirArk is designed to be intuitive, but memoir writing is a deeply personal process. 
+            Origins is designed to be intuitive, but memoir writing is a deeply personal process. 
             Take your time, trust the process, and remember: every memory matters.
           </p>
           <div className="flex flex-wrap gap-3">
             <Button variant="outline" onClick={() => {
-              localStorage.removeItem('memoirark-tour-completed')
+              localStorage.removeItem('origins-tour-completed')
               window.location.href = '/'
             }}>
               Restart Onboarding Tour
