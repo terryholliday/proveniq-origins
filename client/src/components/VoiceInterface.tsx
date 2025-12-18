@@ -2,17 +2,15 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Mic, 
-  MicOff, 
   Square, 
-  Loader2,
-  Sparkles,
   Volume2,
   VolumeX,
-  MessageCircle,
-  Clock,
-  CheckCircle
+  Clock
 } from 'lucide-react';
 import OriAvatar from './OriAvatar';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SpeechRecognitionInstance = any;
 
 interface VoiceInterfaceProps {
   onTranscript?: (text: string) => void;
@@ -41,7 +39,7 @@ export default function VoiceInterface({
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [sessionDuration, setSessionDuration] = useState(0);
   
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -473,10 +471,3 @@ export default function VoiceInterface({
   );
 }
 
-// Add type declarations for Web Speech API
-declare global {
-  interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
-  }
-}

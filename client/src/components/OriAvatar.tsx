@@ -29,7 +29,7 @@ export default function OriAvatar({
       transition: {
         duration: 3,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     },
     listening: {
@@ -38,7 +38,7 @@ export default function OriAvatar({
       transition: {
         duration: 1.5,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     },
     thinking: {
@@ -47,7 +47,7 @@ export default function OriAvatar({
       transition: {
         duration: 2,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     },
     speaking: {
@@ -56,7 +56,7 @@ export default function OriAvatar({
       transition: {
         duration: 0.8,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     }
   };
@@ -68,7 +68,7 @@ export default function OriAvatar({
       transition: {
         duration: 3,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     },
     listening: {
@@ -77,7 +77,7 @@ export default function OriAvatar({
       transition: {
         duration: 1.5,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     },
     thinking: {
@@ -87,7 +87,7 @@ export default function OriAvatar({
       transition: {
         duration: 3,
         repeat: Infinity,
-        ease: "linear"
+        ease: "linear" as const
       }
     },
     speaking: {
@@ -96,7 +96,7 @@ export default function OriAvatar({
       transition: {
         duration: 0.6,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     }
   };

@@ -6,14 +6,18 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { 
   Upload,
-  FileJson,
   MessageSquare,
   ChevronRight,
   Loader2,
-  Check,
-  X,
   Calendar,
-  User
+  User,
+  Bot,
+  FileText,
+  ExternalLink,
+  ArrowRight,
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle2
 } from 'lucide-react'
 import { API_URL } from '@/lib/api'
 
