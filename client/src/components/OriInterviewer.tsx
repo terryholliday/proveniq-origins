@@ -89,6 +89,14 @@ interface CapturedMemory {
   chapter_theme: string | null
 }
 
+interface ListeningAnalysis {
+  user_emotional_state: string
+  subtext_detection: string | null
+  dangling_threads: string[]
+  connection_opportunity: string | null
+  chosen_tactic: string
+}
+
 interface InterviewMemory {
   messages: Message[]
   timelineEvents: TimelineEvent[]
@@ -371,9 +379,16 @@ export default function OriInterviewer() {
   const { displayedText, isTyping, simulateTyping, skipToEnd } = useTypingSimulation()
   const { isListening, transcript, startListening, stopListening, clearTranscript } = useSpeechRecognition()
 
-  // Scroll to bottom
+  // Scroll to TOP on mount (so Astro mode is visible)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [])
+
+  // Scroll to bottom of messages as conversation progresses
+  useEffect(() => {
+    if (memory.messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [memory.messages, displayedText])
 
   // Handle voice transcript
@@ -450,13 +465,24 @@ export default function OriInterviewer() {
       ).join('; ')
 
       // Build artifact summaries with AI analysis
+      // CRITICAL: Only include artifacts where we have ACTUAL content, not just filenames
       const artifactSummaries = artifacts.map((a) => {
         let summary = `[${a.type.toUpperCase()}] ${a.shortDescription || 'Untitled'}`
-        if (a.transcribedText) {
-          summary += `: "${a.transcribedText.slice(0, 200)}${a.transcribedText.length > 200 ? '...' : ''}"`
+        
+        // Check if transcribedText has real content vs pending/error markers
+        const hasRealContent = a.transcribedText && 
+          !a.transcribedText.startsWith('[TRANSCRIPTION') &&
+          a.transcribedText.length > 50
+        
+        if (hasRealContent) {
+          summary += `\nACTUAL CONTENT: "${a.transcribedText!.slice(0, 500)}${a.transcribedText!.length > 500 ? '...' : ''}"`
+        } else if (a.transcribedText?.startsWith('[TRANSCRIPTION')) {
+          summary += `\nSTATUS: ${a.transcribedText}`
+        } else {
+          summary += `\nSTATUS: Content not yet extracted - DO NOT pretend you've read this file`
         }
         return summary
-      }).join('\n')
+      }).join('\n\n')
 
       // Build detailed analysis summaries for pointed questions
       const detailedAnalyses = artifactAnalyses.map((aa) => {
@@ -562,11 +588,18 @@ Generate a warm, personalized greeting that:
 `}
 
 CRITICAL ANTI-HALLUCINATION RULES:
-- ONLY reference details that appear VERBATIM in the data above
-- NEVER invent or assume details that are not explicitly listed
+- ONLY reference details that appear VERBATIM in the "ACTUAL CONTENT" sections above
+- If an artifact says "STATUS: Content not yet extracted" — you MUST NOT claim to have read it. You can only acknowledge the filename exists.
+- If an artifact says "STATUS: [TRANSCRIPTION PENDING...]" — tell the user their files are still processing
+- NEVER invent themes, emotions, or interpretations from FILENAMES ALONE. A file named "August 2017 recording" tells you NOTHING about its content.
 - If the data says "High school graduation" — you know ONLY those words. Do NOT add caps being tossed, feelings of excitement, or any other fabricated details
-- If no meaningful data exists, give a simple warm welcome without pretending to remember things
-- A fabricated greeting destroys trust. When in doubt, be general rather than specific.
+- If no meaningful ACTUAL CONTENT exists, give a simple warm welcome and explain you're still processing their uploads
+- A fabricated greeting destroys trust. When in doubt, be honest: "I see you've uploaded some files, but I'm still processing them."
+
+FILENAME VS CONTENT:
+- "Beyond Belief Introduction.pdf" as a filename tells you NOTHING about faith or transformation — that's a hallucination
+- You need ACTUAL CONTENT to make claims about themes, emotions, or meaning
+- If you only have filenames, SAY SO: "I see you've uploaded several recordings and documents. Once I've had a chance to process them, I'll be able to ask more specific questions."
 
 Be warm but not sycophantic. Channel Oprah's "I see you" energy.
 Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
@@ -699,10 +732,28 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
     capturedMemory: CapturedMemory | null;
     requestedUpload: 'photo' | 'document' | 'audio' | null;
     activeMode: 'standard' | 'astro';
+    listeningAnalysis: ListeningAnalysis | null;
   } => {
     try {
-      // Try to parse as JSON (new protocol)
+      // Try to parse as JSON (v2.0 protocol with listening_analysis)
       const parsed: OriTurnOutput = JSON.parse(rawResponse)
+      
+      // Extract listening analysis (Master Interviewer brain)
+      let listeningAnalysis: ListeningAnalysis | null = null
+      if (parsed.listening_analysis) {
+        listeningAnalysis = {
+          user_emotional_state: parsed.listening_analysis.user_emotional_state,
+          subtext_detection: parsed.listening_analysis.subtext_detection,
+          dangling_threads: parsed.listening_analysis.dangling_threads || [],
+          connection_opportunity: parsed.listening_analysis.connection_opportunity,
+          chosen_tactic: parsed.listening_analysis.chosen_tactic,
+        }
+        // Log tactic for debugging (hidden from user)
+        console.log(`🧠 Ori's Brain: [${listeningAnalysis.chosen_tactic}] ${listeningAnalysis.subtext_detection || 'No subtext detected'}`)
+        if (listeningAnalysis.connection_opportunity) {
+          console.log(`🔗 Loop-back opportunity: ${listeningAnalysis.connection_opportunity}`)
+        }
+      }
       
       // Extract captured memory if status is 'capturing'
       let capturedMemory: CapturedMemory | null = null
@@ -724,6 +775,7 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
         capturedMemory,
         requestedUpload: parsed.system_flags.requested_upload || null,
         activeMode: parsed.system_flags.active_mode || 'standard',
+        listeningAnalysis,
       }
     } catch {
       // If not valid JSON, treat as plain text (fallback mode)
@@ -732,6 +784,7 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
         capturedMemory: null,
         requestedUpload: null,
         activeMode: 'standard',
+        listeningAnalysis: null,
       }
     }
   }
@@ -742,6 +795,7 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
     capturedMemory: CapturedMemory | null;
     requestedUpload: 'photo' | 'document' | 'audio' | null;
     activeMode: 'standard' | 'astro';
+    listeningAnalysis: ListeningAnalysis | null;
   }> => {
     // In production, this would call your LLM API with:
     // - Ori_SYSTEM_PROMPT as the system message
@@ -777,7 +831,7 @@ Keep it to 2-3 short paragraphs max. No JSON, just the greeting text.`
     
     // Fallback response pattern (demonstrates correct Ori behavior)
     const fallbackText = generateFallbackResponse(userMessage, memory)
-    return { replyToUser: fallbackText, capturedMemory: null, requestedUpload: null, activeMode: 'standard' }
+    return { replyToUser: fallbackText, capturedMemory: null, requestedUpload: null, activeMode: 'standard', listeningAnalysis: null }
   }
 
   const handleSend = async () => {

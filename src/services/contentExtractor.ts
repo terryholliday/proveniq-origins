@@ -26,14 +26,25 @@ async function extractTextFile(filePath: string): Promise<string> {
 }
 
 // Audio transcription using OpenAI Whisper
+// IMPORTANT: Whisper API has a 25MB file size limit
+const WHISPER_MAX_SIZE = 25 * 1024 * 1024; // 25MB
+
 async function transcribeAudio(filePath: string): Promise<string> {
   const openaiKey = process.env.OPENAI_API_KEY;
   if (!openaiKey) {
     console.log('OpenAI API key not configured for audio transcription');
-    return '';
+    return '[TRANSCRIPTION PENDING: OpenAI API key not configured]';
   }
 
   try {
+    // Check file size - Whisper has 25MB limit
+    const stats = fs.statSync(filePath);
+    if (stats.size > WHISPER_MAX_SIZE) {
+      const sizeMB = (stats.size / (1024 * 1024)).toFixed(1);
+      console.log(`Audio file too large for Whisper: ${sizeMB}MB (max 25MB)`);
+      return `[TRANSCRIPTION PENDING: Audio file is ${sizeMB}MB, exceeds Whisper's 25MB limit. Consider splitting into smaller segments.]`;
+    }
+
     const FormData = require('form-data');
     const fetch = require('node-fetch');
     
@@ -41,6 +52,8 @@ async function transcribeAudio(filePath: string): Promise<string> {
     formData.append('file', fs.createReadStream(filePath));
     formData.append('model', 'whisper-1');
     formData.append('response_format', 'text');
+
+    console.log(`Transcribing audio: ${filePath} (${(stats.size / (1024 * 1024)).toFixed(1)}MB)`);
 
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
@@ -53,14 +66,15 @@ async function transcribeAudio(filePath: string): Promise<string> {
     if (!response.ok) {
       const error = await response.text();
       console.error('Whisper API error:', error);
-      return '';
+      return `[TRANSCRIPTION FAILED: ${error.substring(0, 100)}]`;
     }
 
     const transcript = await response.text();
+    console.log(`Transcription complete: ${transcript.length} characters`);
     return transcript;
   } catch (error) {
     console.error('Audio transcription error:', error);
-    return '';
+    return `[TRANSCRIPTION ERROR: ${error instanceof Error ? error.message : 'Unknown error'}]`;
   }
 }
 
