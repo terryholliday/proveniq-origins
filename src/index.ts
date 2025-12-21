@@ -24,7 +24,7 @@ import { chapterOrganizerRoutes } from './routes/chapterOrganizer';
 import { memoirExportRoutes } from './routes/memoirExport';
 import { OriRoutes } from './routes/ori';
 import { cloudStorageRoutes } from './routes/cloudStorage';
-import { authRoutes } from './routes/auth';
+import { authRoutes, requireAuth } from './routes/auth';
 import { spotifyRoutes } from './routes/spotify';
 import { insightsRoutes } from './routes/insights';
 
@@ -34,10 +34,27 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173').split(',').map(o => o.trim()).filter(Boolean);
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // Routes
+app.use('/api/auth', authRoutes);
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Require auth for all remaining API routes
+app.use('/api', requireAuth);
+
 app.use('/api/events', eventRoutes);
 app.use('/api/chapters', chapterRoutes);
 app.use('/api/trauma-cycles', traumaCycleRoutes);
@@ -61,7 +78,6 @@ app.use('/api/chapters', chapterOrganizerRoutes);
 app.use('/api/memoir', memoirExportRoutes);
 app.use('/api/ai', OriRoutes);
 app.use('/api/cloud', cloudStorageRoutes);
-app.use('/api/auth', authRoutes);
 app.use('/api/spotify', spotifyRoutes);
 app.use('/api/insights', insightsRoutes);
 
@@ -72,11 +88,6 @@ app.get('/favicon.ico', (req, res) => {
 
 // Chrome DevTools request - return 204 to silence errors
 app.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => res.status(204).end());
-
-// Health check endpoint for Railway
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 app.listen(PORT, () => {
   console.log(`🚀 Origins server running at http://localhost:${PORT}`);

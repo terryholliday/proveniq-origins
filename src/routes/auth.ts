@@ -3,12 +3,23 @@ import { google } from 'googleapis';
 import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
 import { z } from 'zod';
+import admin from 'firebase-admin';
 
 export const authRoutes = Router();
 const prisma = new PrismaClient();
 
-// Simple JWT-like token using HMAC (for single-user local app)
-const JWT_SECRET = process.env.JWT_SECRET || 'origins-dev-secret-change-in-production';
+// Firebase Admin (preferred auth path)
+const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
+if (!admin.apps.length && FIREBASE_PROJECT_ID) {
+  admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+    projectId: FIREBASE_PROJECT_ID,
+  });
+}
+const firebaseAuth = admin.apps.length ? admin.auth() : null;
+
+// Legacy JWT-like token using HMAC (fallback only)
+const JWT_SECRET = process.env.JWT_SECRET;
 
 interface TokenPayload {
   userId: string;
@@ -18,13 +29,17 @@ interface TokenPayload {
 
 // Token utilities
 function createToken(payload: Omit<TokenPayload, 'exp'>): string {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET not set; legacy token generation disabled.');
+  }
   const exp = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
   const data = JSON.stringify({ ...payload, exp });
   const signature = crypto.createHmac('sha256', JWT_SECRET).update(data).digest('base64url');
   return Buffer.from(data).toString('base64url') + '.' + signature;
 }
 
-function verifyToken(token: string): TokenPayload | null {
+function verifyLegacyToken(token: string): TokenPayload | null {
+  if (!JWT_SECRET) return null;
   try {
     const [dataB64, signature] = token.split('.');
     if (!dataB64 || !signature) return null;
@@ -39,6 +54,16 @@ function verifyToken(token: string): TokenPayload | null {
     
     return payload;
   } catch {
+    return null;
+  }
+}
+
+async function verifyFirebaseToken(token: string) {
+  if (!firebaseAuth) return null;
+  try {
+    const decoded = await firebaseAuth.verifyIdToken(token);
+    return decoded;
+  } catch (err) {
     return null;
   }
 }
@@ -146,23 +171,28 @@ authRoutes.get('/google/callback', async (req: Request, res: Response) => {
 });
 
 // GET /api/auth/me - Get current user
-authRoutes.get('/me', async (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
+authRoutes.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const authUser = req.authUser;
+  if (!authUser) {
+    return res.status(401).json({ error: 'Authentication required' });
   }
 
-  const token = authHeader.slice(7);
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
+  // If authenticated via Firebase, return decoded claims/email
+  if (authUser.provider === 'firebase') {
+    return res.json({
+      user: {
+        uid: authUser.uid,
+        email: authUser.email,
+        provider: 'firebase',
+        claims: authUser.claims,
+      },
+    });
   }
 
+  // Legacy fallback: look up user in DB
   try {
     const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
+      where: { id: authUser.uid },
       select: { id: true, email: true, name: true, picture: true, createdAt: true }
     });
 
@@ -302,13 +332,15 @@ authRoutes.post('/login', async (req: Request, res: Response) => {
 // ============================================
 
 export interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: string;
-    email: string;
+  authUser?: {
+    uid: string;
+    email?: string;
+    provider: 'firebase' | 'legacy';
+    claims?: Record<string, unknown>;
   };
 }
 
-export const requireAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const requireAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   
   if (!authHeader?.startsWith('Bearer ')) {
@@ -316,25 +348,57 @@ export const requireAuth = (req: AuthenticatedRequest, res: Response, next: Next
   }
 
   const token = authHeader.slice(7);
-  const payload = verifyToken(token);
 
-  if (!payload) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
+  // Preferred: Firebase ID token
+  const firebaseUser = await verifyFirebaseToken(token);
+  if (firebaseUser) {
+    req.authUser = {
+      uid: firebaseUser.uid,
+      email: firebaseUser.email,
+      provider: 'firebase',
+      claims: firebaseUser,
+    };
+    return next();
   }
 
-  req.user = { userId: payload.userId, email: payload.email };
-  next();
+  // Fallback: legacy HMAC token
+  const legacy = verifyLegacyToken(token);
+  if (legacy) {
+    req.authUser = {
+      uid: legacy.userId,
+      email: legacy.email,
+      provider: 'legacy',
+    };
+    return next();
+  }
+
+  return res.status(401).json({ error: 'Invalid or expired token' });
 };
 
 // Optional auth - doesn't fail if no token, just doesn't set user
-export const optionalAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const optionalAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.slice(7);
-    const payload = verifyToken(token);
-    if (payload) {
-      req.user = { userId: payload.userId, email: payload.email };
+    const firebaseUser = await verifyFirebaseToken(token);
+    if (firebaseUser) {
+      req.authUser = {
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        provider: 'firebase',
+        claims: firebaseUser,
+      };
+      return next();
+    }
+    const legacy = verifyLegacyToken(token);
+    if (legacy) {
+      req.authUser = {
+        uid: legacy.userId,
+        email: legacy.email,
+        provider: 'legacy',
+      };
+      return next();
     }
   }
   
