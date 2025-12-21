@@ -1,12 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { google } from 'googleapis';
-import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
 import { z } from 'zod';
 import admin from 'firebase-admin';
+import { prisma } from '../lib/prisma';
 
 export const authRoutes = Router();
-const prisma = new PrismaClient();
 
 // Firebase Admin (preferred auth path)
 const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
