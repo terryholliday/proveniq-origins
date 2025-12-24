@@ -1,112 +1,112 @@
-# MemoirArk
+# PROVENIQ Origins
 
-**Your personal archive for preserving, organizing, and connecting a lifetime of memories.**
+**Personal Memoir & Life Archive Engine**
 
-MemoirArk is a memoir-building application that helps you capture life events, relationships, artifacts, and the meaningful connections between them—all guided by Noah, your AI interviewer.
-
-## Features
-
-### 📝 Core Archive
-- **Events** — Record life moments with dates, locations, emotions, and detailed notes
-- **People** — Track relationships and the roles people played in your story
-- **Artifacts** — Store photos, letters, recordings, and documents
-- **Chapters** — Organize your memoir into narrative sections
-- **Synchronicities** — Capture dreams, omens, and meaningful coincidences
-- **Timeline** — View your life chronologically
-
-### 🧔 Noah AI Guide
-Noah is your memoir guide—an AI assistant inspired by interviewers like Barbara Walters and Oprah Winfrey. He helps you:
-
-- **Interview Wizard** — A conversational interview that digs beneath the surface of your memories
-- **Contextual Tips** — Page-specific guidance as you navigate the app
-- **Probing Questions** — Reactive follow-ups based on what you actually say
-- **Tag Suggestions** — AI-powered recommendations for organizing content
-
-### 🔍 Discovery Tools
-- **Search** — Find anything across your archive
-- **Query Builder** — Advanced filtering and exploration
-- **Tags** — Organize by theme and emotion
-- **Collections** — Group related content
-- **Export** — Download your memoir as Markdown
+PROVENIQ Origins is a single-user, local-first application for storing, organizing, and linking a lifetime of journals, chat logs, artifacts, and memories. It provides a structured archive to support writing a memoir.
 
 ## Tech Stack
 
-- **Frontend**: React + TypeScript + Vite
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Backend**: Express.js + Prisma
-- **Database**: SQLite (easily upgradeable to PostgreSQL)
-- **State**: React Query
+### Backend (`/server`)
+- **Runtime:** Node.js
+- **Framework:** Express
+- **Language:** TypeScript
+- **ORM:** Prisma
+- **Database:** SQLite (file-based, local)
+- **Validation:** Zod
+
+### Frontend (`/client`)
+- **Framework:** React (Vite)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS + shadcn/ui
+- **Data Fetching:** React Query (TanStack Query)
+- **Typography:** Inter (UI), Source Serif Pro (narrative text)
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 18+ 
 - npm or yarn
 
 ### Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/terryholliday/memoir_ark.git
-cd memoir_ark/memoirark
+1. **Clone the repository**
+   ```bash
+   cd memoirark
+   ```
 
-# Install server dependencies
-cd server
-npm install
+2. **Install server dependencies**
+   ```bash
+   cd server
+   npm install
+   ```
 
-# Set up the database
-npx prisma generate
-npx prisma db push
+3. **Install client dependencies**
+   ```bash
+   cd ../client
+   npm install
+   ```
 
-# Start the server
-npm run dev
+### Database Setup
 
-# In a new terminal, install client dependencies
-cd ../client
-npm install
+1. **Run Prisma migrations**
+   ```bash
+   cd server
+   npx prisma migrate dev
+   ```
 
-# Start the client
-npm run dev
-```
+2. **Seed the database**
+   ```bash
+   npx prisma db seed
+   ```
 
-The app will be available at `http://localhost:5173` (or the port shown in terminal).
+### Running the Application
+
+1. **Start the backend server**
+   ```bash
+   cd server
+   npm run dev
+   ```
+   Server runs at `http://localhost:3001`
+
+2. **Start the frontend dev server**
+   ```bash
+   cd client
+   npm run dev
+   ```
+   Client runs at `http://localhost:5173`
 
 ## Project Structure
 
 ```
-memoirark/
+proveniq-origins/
+├── README.md
+├── project-rules.md
 ├── client/                 # React frontend
 │   ├── src/
-│   │   ├── components/    # Reusable UI components
-│   │   ├── pages/         # Page components
-│   │   ├── lib/           # API client and utilities
-│   │   └── App.tsx        # Main app with routing
+│   │   ├── components/     # UI components
+│   │   ├── pages/          # Page components
+│   │   ├── lib/            # Utilities and API client
+│   │   └── App.tsx
 │   └── package.json
-├── server/                 # Express backend
-│   ├── src/
-│   │   ├── routes/        # API endpoints
-│   │   └── index.ts       # Server entry point
-│   ├── prisma/
-│   │   └── schema.prisma  # Database schema
-│   └── package.json
-└── README.md
+└── server/                 # Express backend
+    ├── src/
+    │   ├── routes/         # API routes
+    │   └── index.ts
+    ├── prisma/
+    │   ├── schema.prisma   # Database schema
+    │   └── seed.ts         # Seed data
+    └── package.json
 ```
 
-## Key Components
+## Current Phase
 
-| Component | Description |
-|-----------|-------------|
-| `NoahWizardPage` | Barbara Walters-style interview wizard |
-| `NoahGuide` | Floating AI assistant with contextual tips |
-| `ContextAssistant` | Follow-up questions for uploads |
-| `TagSuggestions` | AI-powered tag recommendations |
-| `Dashboard` | Actions-first home page |
-| `Timeline` | Chronological event visualization |
+**Phase 1: Foundation & Seeding** (Current)
+- ✅ Monorepo scaffolding
+- ✅ Prisma schema + migration
+- ✅ Seed data (Chapters, TraumaCycles, Songs)
+- ✅ Event CRUD API
+- ✅ Dashboard & Event UI
 
 ## License
 
-MIT
-
-## Author
-
-Terry Holliday
+Private - Terry Holliday
