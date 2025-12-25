@@ -2,9 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OriRoutes = void 0;
 const express_1 = require("express");
+const auth_1 = require("./auth");
 exports.OriRoutes = (0, express_1.Router)();
 // POST /api/ai/Ori - Generate Ori's response
-exports.OriRoutes.post('/Ori', async (req, res) => {
+exports.OriRoutes.post('/Ori', auth_1.requireAiConsent, async (req, res) => {
     try {
         const { systemPrompt, conversationHistory, userMessage } = req.body;
         if (!userMessage) {
@@ -165,7 +166,7 @@ exports.OriRoutes.post('/Ori', async (req, res) => {
     }
 });
 // POST /api/ai/rectify - Birth time rectification using life events
-exports.OriRoutes.post('/rectify', async (req, res) => {
+exports.OriRoutes.post('/rectify', auth_1.requireAiConsent, async (req, res) => {
     try {
         const { birthDate, birthPlace, timeWindow, lifeEvents } = req.body;
         if (!birthDate || !birthPlace || !lifeEvents || lifeEvents.length < 3) {

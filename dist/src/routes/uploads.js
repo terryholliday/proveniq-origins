@@ -9,9 +9,13 @@ const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const adm_zip_1 = __importDefault(require("adm-zip"));
+const sanitize_filename_1 = __importDefault(require("sanitize-filename"));
 const prisma_1 = require("../lib/prisma");
 const contentExtractor_1 = require("../services/contentExtractor");
+const rateLimit_1 = require("../middleware/rateLimit");
 exports.uploadRoutes = (0, express_1.Router)();
+// Apply rate limiting to all upload routes
+exports.uploadRoutes.use(rateLimit_1.uploadLimiter);
 // Ensure uploads directory exists
 const uploadsDir = path_1.default.join(__dirname, '../../uploads');
 if (!fs_1.default.existsSync(uploadsDir)) {
@@ -184,13 +188,23 @@ exports.uploadRoutes.post('/audio', upload.single('audio'), async (req, res) => 
         // Extract/transcribe content synchronously and return for user review
         const filePath = path_1.default.join(uploadsDir, req.file.filename);
         let extractedText = '';
-        try {
-            const result = await (0, contentExtractor_1.extractContent)(filePath, req.file.mimetype);
-            extractedText = result.text || '';
-            console.log(`Audio transcription complete: ${extractedText.length} chars`);
+        // Check AI Consent
+        const user = await prisma_1.prisma.user.findUnique({
+            where: { id: req.authUser.uid },
+            select: { aiConsent: true }
+        });
+        if (user?.aiConsent) {
+            try {
+                const result = await (0, contentExtractor_1.extractContent)(filePath, req.file.mimetype);
+                extractedText = result.text || '';
+                console.log(`Audio transcription complete: ${extractedText.length} chars`);
+            }
+            catch (err) {
+                console.error('Audio transcription error:', err);
+            }
         }
-        catch (err) {
-            console.error('Audio transcription error:', err);
+        else {
+            console.log('Skipping audio transcription (No AI Consent)');
         }
         res.status(201).json({
             artifact,
@@ -244,10 +258,17 @@ exports.uploadRoutes.post('/audio/batch', upload.array('audio', 50), async (req,
         res.status(500).json({ error: 'Failed to upload audio files' });
     }
 });
+// ... imports
+// ...
 // GET /api/uploads/:filename - Serve uploaded file
 exports.uploadRoutes.get('/:filename', (req, res) => {
     const { filename } = req.params;
-    const filePath = path_1.default.join(uploadsDir, filename);
+    const safeFilename = (0, sanitize_filename_1.default)(filename);
+    // Prevent path traversal double check (sanitize should handle it, but good to be explicit)
+    if (safeFilename !== filename || filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+        return res.status(400).json({ error: 'Invalid filename' });
+    }
+    const filePath = path_1.default.join(uploadsDir, safeFilename);
     if (!fs_1.default.existsSync(filePath)) {
         return res.status(404).json({ error: 'File not found' });
     }
@@ -257,15 +278,18 @@ exports.uploadRoutes.get('/:filename', (req, res) => {
 exports.uploadRoutes.delete('/:filename', async (req, res) => {
     try {
         const { filename } = req.params;
-        const filePath = path_1.default.join(uploadsDir, filename);
+        const safeFilename = (0, sanitize_filename_1.default)(filename);
+        if (safeFilename !== filename) {
+            return res.status(400).json({ error: 'Invalid filename' });
+        }
+        const filePath = path_1.default.join(uploadsDir, safeFilename);
         if (fs_1.default.existsSync(filePath)) {
             fs_1.default.unlinkSync(filePath);
         }
         res.status(204).send();
     }
     catch (error) {
-        console.error('Error deleting file:', error);
-        res.status(500).json({ error: 'Failed to delete file' });
+        // ...
     }
 });
 // POST /api/uploads/image - Upload image and create artifact (alias for /photo)
@@ -290,15 +314,25 @@ exports.uploadRoutes.post('/image', uploadImage.single('image'), async (req, res
         let extractedText = '';
         let memoryPrompts = [];
         let estimatedDate;
-        try {
-            const result = await (0, contentExtractor_1.extractContent)(filePath, req.file.mimetype);
-            extractedText = result.analysis || result.text || '';
-            memoryPrompts = result.memoryPrompts || [];
-            estimatedDate = result.estimatedDate;
-            console.log(`Image analysis complete: ${extractedText.length} chars, ${memoryPrompts.length} prompts`);
+        // Check AI Consent
+        const user = await prisma_1.prisma.user.findUnique({
+            where: { id: req.authUser.uid },
+            select: { aiConsent: true }
+        });
+        if (user?.aiConsent) {
+            try {
+                const result = await (0, contentExtractor_1.extractContent)(filePath, req.file.mimetype);
+                extractedText = result.analysis || result.text || '';
+                memoryPrompts = result.memoryPrompts || [];
+                estimatedDate = result.estimatedDate;
+                console.log(`Image analysis complete: ${extractedText.length} chars, ${memoryPrompts.length} prompts`);
+            }
+            catch (err) {
+                console.error('Image analysis error:', err);
+            }
         }
-        catch (err) {
-            console.error('Image analysis error:', err);
+        else {
+            console.log('Skipping image analysis (No AI Consent)');
         }
         res.status(201).json({
             artifact,
@@ -353,13 +387,23 @@ exports.uploadRoutes.post('/document', uploadDocument.single('document'), async 
         // Extract content synchronously and return for user review
         const filePath = path_1.default.join(docsDir, req.file.filename);
         let extractedText = '';
-        try {
-            const result = await (0, contentExtractor_1.extractContent)(filePath, req.file.mimetype);
-            extractedText = result.text || '';
-            console.log(`Document extraction complete: ${extractedText.length} chars`);
+        // Check AI Consent
+        const user = await prisma_1.prisma.user.findUnique({
+            where: { id: req.authUser.uid },
+            select: { aiConsent: true }
+        });
+        if (user?.aiConsent) {
+            try {
+                const result = await (0, contentExtractor_1.extractContent)(filePath, req.file.mimetype);
+                extractedText = result.text || '';
+                console.log(`Document extraction complete: ${extractedText.length} chars`);
+            }
+            catch (err) {
+                console.error('Document extraction error:', err);
+            }
         }
-        catch (err) {
-            console.error('Document extraction error:', err);
+        else {
+            console.log('Skipping document extraction (No AI Consent)');
         }
         // If we extracted text, trigger AI analysis
         let aiAnalysis = null;

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.optionalAuth = exports.requireAuth = exports.authRoutes = void 0;
+exports.optionalAuth = exports.requireAiConsent = exports.requireAuth = exports.authRoutes = void 0;
 const express_1 = require("express");
 const googleapis_1 = require("googleapis");
 const client_1 = require("@prisma/client");
@@ -302,6 +302,31 @@ const requireAuth = async (req, res, next) => {
     return res.status(401).json({ error: 'Authentication required' });
 };
 exports.requireAuth = requireAuth;
+// Middleware to require AI consent
+const requireAiConsent = async (req, res, next) => {
+    if (!req.authUser || !req.authUser.uid) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.authUser.uid },
+            select: { aiConsent: true }
+        });
+        if (user?.aiConsent) {
+            req.authUser.aiConsent = true;
+            return next();
+        }
+        return res.status(403).json({
+            error: 'AI Consent Required',
+            message: 'You must enable AI processing in your settings to use this feature.'
+        });
+    }
+    catch (error) {
+        console.error('AI Consent check error:', error);
+        return res.status(500).json({ error: 'Failed to verify AI permissions' });
+    }
+};
+exports.requireAiConsent = requireAiConsent;
 // Optional auth
 const optionalAuth = async (req, res, next) => {
     const cookieToken = req.cookies?.[COOKIE_NAME];

@@ -6,8 +6,10 @@ export interface AuthenticatedRequest extends Request {
         email?: string;
         provider: 'firebase' | 'local';
         claims?: Record<string, unknown>;
+        aiConsent?: boolean;
     };
 }
 export declare const requireAuth: (req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+export declare const requireAiConsent: (req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 export declare const optionalAuth: (req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<void>;
 //# sourceMappingURL=auth.d.ts.map

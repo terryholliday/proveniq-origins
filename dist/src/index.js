@@ -33,6 +33,7 @@ const cloudStorage_1 = require("./routes/cloudStorage");
 const auth_1 = require("./routes/auth");
 const spotify_1 = require("./routes/spotify");
 const insights_1 = require("./routes/insights");
+const provenance_1 = require("./routes/provenance");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
@@ -49,11 +50,17 @@ app.use((0, cors_1.default)({
 }));
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
+// Middleware
+const rateLimit_1 = require("./middleware/rateLimit");
+// ... (previous middleware)
 // Routes
-app.use('/api/auth', auth_1.authRoutes);
+// Apply auth rate limiting
+app.use('/api/auth', rateLimit_1.authLimiter, auth_1.authRoutes);
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+// Apply global API rate limiting to all other routes
+app.use('/api', rateLimit_1.apiLimiter);
 // Require auth for all remaining API routes
 app.use('/api', auth_1.requireAuth);
 app.use('/api/events', events_1.eventRoutes);
@@ -81,6 +88,7 @@ app.use('/api/ai', ori_1.OriRoutes);
 app.use('/api/cloud', cloudStorage_1.cloudStorageRoutes);
 app.use('/api/spotify', spotify_1.spotifyRoutes);
 app.use('/api/insights', insights_1.insightsRoutes);
+app.use('/api/provenance', provenance_1.provenanceRoutes);
 // Favicon handler (no favicon, return 204)
 app.get('/favicon.ico', (req, res) => {
     res.status(204).end();
