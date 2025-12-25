@@ -5,12 +5,12 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "prisma generate && tsc",
+    "build": "node scripts/with-db-env.js prisma generate && tsc",
     "start": "node dist/index.js",
-    "postinstall": "prisma generate && tsc",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed"
+    "postinstall": "node scripts/with-db-env.js prisma generate && tsc",
+    "prisma:generate": "node scripts/with-db-env.js prisma generate",
+    "prisma:migrate": "node scripts/with-db-env.js prisma migrate dev",
+    "prisma:seed": "node scripts/with-db-env.js prisma db seed"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
