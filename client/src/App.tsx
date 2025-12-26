@@ -44,6 +44,8 @@ import PhotoMemory from './pages/PhotoMemory'
 import FamilyTree from './pages/FamilyTree'
 import VoiceCapture from './pages/VoiceCapture'
 import FamilyCollaboration from './pages/FamilyCollaboration'
+import FamilySharing from './pages/FamilySharing'
+import SharedMemoir from './pages/SharedMemoir'
 import CloudImport from './pages/CloudImport'
 import BulkUpload from './pages/BulkUpload'
 import OriInterviewer from './components/OriInterviewer'
@@ -95,6 +97,7 @@ function App() {
         <Route path="/welcome" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/login/callback" element={<LoginCallback />} />
+        <Route path="/shared/:token" element={<SharedMemoir />} />
 
         {/* Ori Interview - Full screen, outside main layout */}
         <Route path="/interview" element={
@@ -152,6 +155,7 @@ function App() {
                 <Route path="/family-tree" element={<FamilyTree />} />
                 <Route path="/voice-capture" element={<VoiceCapture />} />
                 <Route path="/collaborate" element={<FamilyCollaboration />} />
+                <Route path="/sharing" element={<FamilySharing />} />
                 <Route path="/import/cloud" element={<CloudImport />} />
                 <Route path="/bulk-upload" element={<BulkUpload />} />
                 <Route path="/interview" element={<OriInterviewer />} />

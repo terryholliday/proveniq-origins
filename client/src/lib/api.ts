@@ -837,4 +837,112 @@ export const authApi = {
   }
 }
 
+// ============================================
+// FAMILY SHARING API (Phase 5)
+// ============================================
+
+export interface FamilyShare {
+  id: string
+  recipientEmail: string
+  recipientName: string | null
+  accessLevel: 'read' | 'contribute'
+  accessToken: string
+  expiresAt: string | null
+  lastAccessedAt: string | null
+  isActive: boolean
+  scopeAllChapters: boolean
+  scopeChapterIds: string[]
+  scopeCollectionIds: string[]
+  ledgerEventId: string | null
+  shareUrl: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateSharePayload {
+  recipientEmail: string
+  recipientName?: string
+  accessLevel?: 'read' | 'contribute'
+  expiresInDays?: number
+  scopeAllChapters?: boolean
+  scopeChapterIds?: string[]
+  scopeCollectionIds?: string[]
+}
+
+export interface SharedMemoirView {
+  share: {
+    id: string
+    ownerName: string
+    accessLevel: string
+    createdAt: string
+    expiresAt: string | null
+  }
+  memoir: {
+    stats: {
+      chapters: number
+      events: number
+      artifacts: number
+      people: number
+    }
+    chapters: Array<{
+      id: string
+      number: number
+      title: string
+      summary: string
+      yearsCovered: string[]
+      events: Array<{
+        id: string
+        title: string
+        date: string | null
+        location: string | null
+        summary: string | null
+        emotionTags: string[]
+        isKeystone: boolean
+        people: string[]
+        artifactCount: number
+      }>
+    }>
+    collections: Array<{
+      id: string
+      name: string
+      description: string
+      eventCount: number
+      artifactCount: number
+      personCount: number
+    }>
+  }
+}
+
+export const familyShareApi = {
+  getShares: async (): Promise<FamilyShare[]> => {
+    const { data } = await api.get('/family/shares')
+    return data
+  },
+
+  createShare: async (payload: CreateSharePayload): Promise<FamilyShare> => {
+    const { data } = await api.post('/family/shares', payload)
+    return data
+  },
+
+  updateShare: async (id: string, payload: Partial<CreateSharePayload>): Promise<FamilyShare> => {
+    const { data } = await api.patch(`/family/shares/${id}`, payload)
+    return data
+  },
+
+  revokeShare: async (id: string): Promise<void> => {
+    await api.delete(`/family/shares/${id}`)
+  },
+
+  regenerateToken: async (id: string): Promise<{ success: boolean; newShareUrl: string }> => {
+    const { data } = await api.post(`/family/shares/${id}/regenerate-token`)
+    return data
+  },
+
+  // Public endpoint - no auth required
+  getSharedContent: async (token: string): Promise<SharedMemoirView> => {
+    const { data } = await axios.get(`${API_BASE_URL}/api/family/shared/${token}`)
+    return data
+  },
+}
+
 export default api
