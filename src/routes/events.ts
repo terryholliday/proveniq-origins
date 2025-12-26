@@ -2,6 +2,7 @@ import { Router, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { requireAuth, AuthenticatedRequest } from './auth';
+import { getLedgerWriter } from '../services/ledger-writer';
 
 export const eventRoutes = Router();
 
@@ -161,6 +162,14 @@ eventRoutes.post('/', async (req: AuthenticatedRequest, res: Response) => {
       },
     });
 
+    // Write to Ledger (async, non-blocking)
+    getLedgerWriter().recordEventCreated(
+      userId,
+      event.id,
+      event.title,
+      event.date || undefined
+    ).catch(err => console.error('[LEDGER] Event create sync failed:', err));
+
     res.status(201).json({
       ...event,
       emotionTags: JSON.parse(event.emotionTags),
@@ -211,6 +220,13 @@ eventRoutes.put('/:id', async (req: AuthenticatedRequest, res: Response) => {
         traumaCycle: true,
       },
     });
+
+    // Write to Ledger (async, non-blocking)
+    const changedFields = Object.keys(updateData);
+    if (changedFields.length > 0) {
+      getLedgerWriter().recordEventUpdated(userId, id, changedFields)
+        .catch(err => console.error('[LEDGER] Event update sync failed:', err));
+    }
 
     res.json({
       ...event,

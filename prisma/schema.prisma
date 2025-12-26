@@ -33,6 +33,7 @@ model User {
   synchronicities Synchronicity[]
   tags          Tag[]
   collections   Collection[]
+  familyShares  FamilyShare[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -283,4 +284,50 @@ model CollectionPerson {
   createdAt    DateTime   @default(now())
 
   @@unique([collectionId, personId])
+}
+
+// ============================================
+// PHASE 5 — FAMILY SHARING & LEDGER
+// ============================================
+
+model FamilyShare {
+  id              String   @id @default(cuid())
+  userId          String   // Owner of the memoir
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipientEmail  String
+  recipientName   String?
+  accessLevel     String   @default("read") // read, contribute, admin
+  accessToken     String   @unique @default(cuid())
+  expiresAt       DateTime?
+  lastAccessedAt  DateTime?
+  isActive        Boolean  @default(true)
+  
+  // Scope: what can they see?
+  scopeAllChapters   Boolean @default(true)
+  scopeChapterIds    String  @default("[]") // JSON array of chapter IDs if not all
+  scopeCollectionIds String  @default("[]") // JSON array of collection IDs
+  
+  // Ledger tracking
+  ledgerEventId   String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([userId, recipientEmail])
+}
+
+model LedgerSync {
+  id            String   @id @default(cuid())
+  userId        String
+  resourceType  String   // event, artifact, chapter, collection, memoir
+  resourceId    String
+  eventType     String   // ORIGINS_EVENT_CREATED, etc.
+  ledgerEventId String?
+  ledgerHash    String?
+  syncedAt      DateTime @default(now())
+  status        String   @default("pending") // pending, synced, failed
+  errorMessage  String?
+  
+  @@index([userId, resourceType])
+  @@index([resourceId])
 }

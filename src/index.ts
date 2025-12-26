@@ -30,6 +30,7 @@ import { spotifyRoutes } from './routes/spotify';
 import { insightsRoutes } from './routes/insights';
 import { provenanceRoutes } from './routes/provenance';
 import { pdfExportRoutes } from './routes/pdfExport';
+import { familyShareRoutes } from './routes/familyShare';
 
 dotenv.config();
 
@@ -96,6 +97,7 @@ app.use('/api/spotify', spotifyRoutes);
 app.use('/api/insights', insightsRoutes);
 app.use('/api/provenance', provenanceRoutes);
 app.use('/api/export/pdf', pdfExportRoutes);
+app.use('/api/family', familyShareRoutes);
 
 // Favicon handler (no favicon, return 204)
 app.get('/favicon.ico', (req, res) => {
