@@ -28,3 +28,4 @@ yarn-error.log*
 
 Beyond Belief/
 uploads/
+.vercel
