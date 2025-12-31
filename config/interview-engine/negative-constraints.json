@@ -56,7 +56,7 @@
       "prohibited_pattern_ids": [
         "P_BULLYING"
       ],
-      "fallback_route": "OPRAH_BASE",
+      "fallback_route": "EMPATHY_BASE",
       "fallback_text_template": "I may be mixing up details. If it\u2019s okay, can you help me place the timeline in your own words? If not, we can move on."
     },
     {

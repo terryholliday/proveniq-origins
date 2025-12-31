@@ -50,7 +50,7 @@ The Interview Engine **does**:
 ---
 
 ## Definitions
-- **Persona**: A style module (e.g., Oprah-base warmth, Walters precision, Phil clarification) expressed as *templates, tactics, and constraints*, not celebrity imitation.
+- **Persona**: A style module (e.g., Empathy-base warmth, Precision precision, Logic clarification) expressed as *templates, tactics, and constraints*, not celebrity imitation.
 - **Depth level**: A bounded integer indicating intimacy/sensitivity of the current thread (0–3).
 - **Recursion**: A looped follow-up sequence within a persona state machine.
 - **Safety signal**: Any indicator to pause, de-escalate, or change topic.
@@ -94,9 +94,9 @@ flowchart LR
   - sentence-type distributions  
   - softener lexicon with tags  
 - `state_machines.json`  
-  - `precision_narrowing` (Walters)  
-  - `emotional_expansion` (Oprah)  
-  - `inconsistency_resolution` (Phil)  
+  - `precision_narrowing` (Precision)  
+  - `emotional_expansion` (Empathy)  
+  - `inconsistency_resolution` (Logic)  
 - `negative_constraints.json`  
   - failure modes → prohibited patterns → fallbacks  
 - `system_prompt_block.txt`  
@@ -128,10 +128,10 @@ Optional signals:
 
 ### Policy (normative)
 - If `refusal_or_discomfort == true`, route to `SAFETY_FALLBACK` and **do not** increase depth.
-- Else if `contradiction_score >= CONTRADICTION_THRESHOLD`, route to `PHIL_CLARIFY` with **single-step** resolution.
-- Else if `emotion_score >= EMOTION_THRESHOLD`, route to `OPRAH_EXPAND` with bounded loop.
-- Else if `vagueness_score >= VAGUENESS_THRESHOLD`, route to `WALTERS_NARROW` with bounded loop.
-- Else route to `OPRAH_BASE`.
+- Else if `contradiction_score >= CONTRADICTION_THRESHOLD`, route to `LOGIC_CLARIFY` with **single-step** resolution.
+- Else if `emotion_score >= EMOTION_THRESHOLD`, route to `EMPATHY_EXPAND` with bounded loop.
+- Else if `vagueness_score >= VAGUENESS_THRESHOLD`, route to `PRECISION_NARROW` with bounded loop.
+- Else route to `EMPATHY_BASE`.
 
 ### Router Decision Diagram (Mermaid)
 ```mermaid
@@ -139,12 +139,12 @@ flowchart TD
   A[Start] --> B{Refusal/Discomfort?}
   B -- yes --> SF[SAFETY_FALLBACK]
   B -- no --> C{Contradiction >= T?}
-  C -- yes --> PC[PHIL_CLARIFY]
+  C -- yes --> LC[LOGIC_CLARIFY]
   C -- no --> D{Emotion >= T?}
-  D -- yes --> OE[OPRAH_EXPAND]
+  D -- yes --> EE[EMPATHY_EXPAND]
   D -- no --> E{Vagueness >= T?}
-  E -- yes --> WN[WALTERS_NARROW]
-  E -- no --> OB[OPRAH_BASE]
+  E -- yes --> PN[PRECISION_NARROW]
+  E -- no --> EB[EMPATHY_BASE]
 ```
 
 ---
@@ -210,7 +210,7 @@ Every produced turn must return:
 
 ```json
 {
-  "persona_used": "OPRAH_BASE|OPRAH_EXPAND|WALTERS_NARROW|PHIL_CLARIFY|SAFETY_FALLBACK",
+  "persona_used": "EMPATHY_BASE|EMPATHY_EXPAND|PRECISION_NARROW|LOGIC_CLARIFY|SAFETY_FALLBACK",
   "topic_id": "string",
   "conversation_phase": "warmup|narrative|depth|reflection|close",
   "depth_level_before": 0,

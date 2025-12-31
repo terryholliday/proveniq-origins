@@ -65,13 +65,13 @@ async function main() {
     const sessionId = startData.session_id;
 
     // 4. Activate Kernel
-    console.log('\n🔫 Activating WALTERS Kernel...');
+    console.log('\n🔫 Activating PRECISION Kernel...');
     const activateRes = await fetch(`${BASE_URL}/ai/interview/turn`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
             session_id: sessionId,
-            message: '/activate WALTERS'
+            message: '/activate PRECISION'
         }),
     });
     if (!activateRes.ok) {
@@ -82,8 +82,8 @@ async function main() {
 
         if (!activateData.response) {
             console.error('❌ Response field missing. Full data:', JSON.stringify(activateData, null, 2));
-        } else if (!activateData.response.includes('WALTERS')) {
-            console.warn('⚠️ Warning: Activation message didn\'t confirm WALTERS');
+        } else if (!activateData.response.includes('PRECISION')) {
+            console.warn('⚠️ Warning: Activation message didn\'t confirm PRECISION');
         }
     }
 
