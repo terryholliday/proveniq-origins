@@ -24,7 +24,7 @@ export const ProbabilitySchema = z.number().min(0).max(1);
 // Pressure Score (1-10) for friction monitoring
 export const PressureScoreSchema = z.number().int().min(1).max(10);
 
-export const PersonaArchetypeSchema = z.enum(['WALTERS', 'WINFREY', 'MCGRAW', 'SAFETY_OVERRIDE']);
+export const PersonaArchetypeSchema = z.enum(['PRECISION', 'EMPATHY', 'LOGIC', 'SAFETY_OVERRIDE']);
 
 // =============================================================================
 // 2. HOST LOGIC (STRATEGY VS. TACTICS)
@@ -50,17 +50,17 @@ export const RhetoricalDeviceSchema = z.enum([
     'OFFER_FORK',           // "Stay here or step sideways?"
     'RETURN_TO_OPEN_LOOP',  // Callback
 
-    // WALTERS (Precision)
+    // PRECISION
     'DEFINITION_CHALLENGE', // "Define 'close'"
     'AGENCY_BINARY',        // "Silent or silenced?"
     'TIMELINE_SNAP',        // "Before or after?"
     'UTILITARIAN_CHECK',    // "How's that working?"
 
-    // OPRAH (Empathy)
+    // EMPATHY
     'SOMATIC_BRIDGE',       // "Where do you feel that?"
     'SPIRITUAL_REFRAME',    // "What is the lesson?"
 
-    // PHIL (Logic)
+    // LOGIC
     'LOGIC_TRAP',           // "You said X, but did Y"
     'FUTURE_LOCK',          // "What happens Tuesday?"
     'BINARY_FORCING',       // "Yes or no."

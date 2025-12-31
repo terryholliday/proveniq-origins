@@ -20,13 +20,13 @@
     "priority_order": { "type": "array", "items": { "type": "string" }, "minItems": 3 },
     "routes": {
       "type": "object",
-      "required": ["SAFETY_FALLBACK","PHIL_CLARIFY","OPRAH_EXPAND","WALTERS_NARROW","OPRAH_BASE"],
+      "required": ["SAFETY_FALLBACK","LOGIC_CLARIFY","EMPATHY_EXPAND","PRECISION_NARROW","EMPATHY_BASE"],
       "properties": {
         "SAFETY_FALLBACK": { "$ref": "#/definitions/routeDef" },
-        "PHIL_CLARIFY": { "$ref": "#/definitions/routeDef" },
-        "OPRAH_EXPAND": { "$ref": "#/definitions/routeDef" },
-        "WALTERS_NARROW": { "$ref": "#/definitions/routeDef" },
-        "OPRAH_BASE": { "$ref": "#/definitions/routeDef" }
+        "LOGIC_CLARIFY": { "$ref": "#/definitions/routeDef" },
+        "EMPATHY_EXPAND": { "$ref": "#/definitions/routeDef" },
+        "PRECISION_NARROW": { "$ref": "#/definitions/routeDef" },
+        "EMPATHY_BASE": { "$ref": "#/definitions/routeDef" }
       },
       "additionalProperties": false
     }

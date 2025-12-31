@@ -14,7 +14,7 @@ import { PatternSignal, PatternKind, HostStrategy, RhetoricalDevice, EarpieceFee
 // PRISM KERNELS
 // =============================================================================
 
-export type PRISMKernel = 'WALTERS' | 'WINFREY' | 'MCGRAW';
+export type PRISMKernel = 'PRECISION' | 'EMPATHY' | 'LOGIC';
 
 export interface KernelProfile {
     archetype: string;
@@ -27,7 +27,7 @@ export interface KernelProfile {
 }
 
 export const KERNEL_PROFILES: Record<PRISMKernel, KernelProfile> = {
-    WALTERS: {
+    PRECISION: {
         archetype: 'The Social Assassin',
         description: 'Intellectual dominance masked by social grace',
         linguisticSignature: "Complex-Compound sentences. High use of 'Forgive me,' 'Fascinating,' 'Let me understand.'",
@@ -36,7 +36,7 @@ export const KERNEL_PROFILES: Record<PRISMKernel, KernelProfile> = {
         temperatureRange: [0.3, 0.5],
         defaultTemperature: 0.4,
     },
-    WINFREY: {
+    EMPATHY: {
         archetype: 'The Spiritual Matriarch',
         description: 'Emotional expansion through mirroring and validation',
         linguisticSignature: "Repetitive, circular, spiritual. Uses words like 'Spirit,' 'Truth,' 'Journey,' 'Wreckage.'",
@@ -45,11 +45,11 @@ export const KERNEL_PROFILES: Record<PRISMKernel, KernelProfile> = {
         temperatureRange: [0.6, 0.8],
         defaultTemperature: 0.7,
     },
-    MCGRAW: {
+    LOGIC: {
         archetype: 'The Behavioral Forensic',
         description: 'Logic enforcement through contradiction exposure',
         linguisticSignature: "Short, punchy, binary. Uses idioms ('Rubber meets the road,' 'Bill of goods').",
-        logic: "The Inconsistency Trap. 'You said X (Intent), but you did Y (Action).'",
+        logic: "The Inconsistency Trap. 'You said X (Intent), but you did Y (Action).'.",
         prosodyPattern: '<staccato>, <volume_up>, <skeptical>, <fast>',
         temperatureRange: [0.2, 0.4],
         defaultTemperature: 0.3,
@@ -271,11 +271,11 @@ export class MonologueGenerator {
         const profile = KERNEL_PROFILES[kernel];
 
         switch (kernel) {
-            case 'WALTERS':
+            case 'PRECISION':
                 return `Using precision probe. ${profile.linguisticSignature}`;
-            case 'WINFREY':
+            case 'EMPATHY':
                 return `Creating emotional space. ${profile.linguisticSignature}`;
-            case 'MCGRAW':
+            case 'LOGIC':
                 return `Enforcing logic. ${profile.linguisticSignature}`;
         }
     }
@@ -292,7 +292,7 @@ export interface TacticSelection {
 }
 
 export const TACTIC_REGISTRY: Record<PRISMKernel, Record<string, string>> = {
-    WALTERS: {
+    PRECISION: {
         definition_check: 'Force binary choice from vague term',
         intent_vs_impact: 'Contrast stated intent with observed outcome',
         physical_evidence_probe: 'Request concrete physical details',
@@ -304,7 +304,7 @@ export const TACTIC_REGISTRY: Record<PRISMKernel, Record<string, string>> = {
         motive_inquiry: 'Demand logic for imputed malice',
         final_appeal: 'Threaten narrative loss on exit',
     },
-    WINFREY: {
+    EMPATHY: {
         mirror_and_amplify: 'Echo keyword and expand magnitude',
         intent_validation: 'Externalize cause when shame detected',
         deep_dive: 'Somatic inquiry on trauma marker',
@@ -316,7 +316,7 @@ export const TACTIC_REGISTRY: Record<PRISMKernel, Record<string, string>> = {
         non_judgmental_inquiry: 'Root cause analysis on confession',
         redemption_arc: 'Visualize future on resolution signal',
     },
-    MCGRAW: {
+    LOGIC: {
         fact_check: 'Ridicule delusion with evidence absence',
         past_behavior_predictor: 'Reject promise based on history',
         ownership_demand: 'Age context mismatch on external blame',
@@ -343,7 +343,7 @@ export class TacticSelector {
         let confidence = 0.5;
 
         switch (kernel) {
-            case 'WALTERS':
+            case 'PRECISION':
                 if (input.evasionSignals.includes('complexity_shield')) {
                     selectedTactic = 'definition_check';
                     confidence = 0.9;
@@ -359,7 +359,7 @@ export class TacticSelector {
                 }
                 break;
 
-            case 'WINFREY':
+            case 'EMPATHY':
                 if (input.emotionalLeakage.includes('shame_leak') || input.emotionalLeakage.includes('guilt_leak')) {
                     selectedTactic = 'intent_validation';
                     confidence = 0.9;
@@ -375,7 +375,7 @@ export class TacticSelector {
                 }
                 break;
 
-            case 'MCGRAW':
+            case 'LOGIC':
                 if (input.cognitiveDissonance) {
                     selectedTactic = 'but_logic';
                     confidence = 0.9;
@@ -434,8 +434,8 @@ export class PressureScorer {
         if (input.sentiment === 'hopeful') score -= 1;
 
         // Kernel modifiers
-        if (kernel === 'MCGRAW') score += 1; // McGraw runs hotter
-        if (kernel === 'WINFREY') score -= 1; // Winfrey runs cooler
+        if (kernel === 'LOGIC') score += 1; // Logic runs hotter
+        if (kernel === 'EMPATHY') score -= 1; // Empathy runs cooler
 
         // Time pressure (later in interview = more pressure)
         score += Math.min(turnNumber / 10, 1);
@@ -546,7 +546,7 @@ export class PRISMProcessor {
 
         // Map PRISM tactics to Host Strat/Device
         const strategyMap: Record<string, { strategy: HostStrategy; device?: RhetoricalDevice }> = {
-            // Walters
+            // Precision
             definition_check: { strategy: 'PRESS', device: 'DEFINITION_CHALLENGE' },
             memory_challenge: { strategy: 'PRESS', device: 'TIMELINE_SNAP' }, // "snap them back to the event"
             physical_evidence_probe: { strategy: 'PRESS', device: 'UTILITARIAN_CHECK' }, // "does the evidence support this?"
@@ -558,7 +558,7 @@ export class PRISMProcessor {
             motive_inquiry: { strategy: 'PRESS', device: 'LOGIC_TRAP' },
             final_appeal: { strategy: 'WRAP', device: 'FUTURE_LOCK' },
 
-            // Winfrey
+            // Empathy
             mirror_and_amplify: { strategy: 'HOLD', device: 'MIRRORING' },
             intent_validation: { strategy: 'HOLD', device: 'MIRRORING' },
             deep_dive: { strategy: 'YIELD', device: 'SOMATIC_BRIDGE' },
@@ -570,7 +570,7 @@ export class PRISMProcessor {
             non_judgmental_inquiry: { strategy: 'YIELD', device: 'RETURN_TO_OPEN_LOOP' },
             redemption_arc: { strategy: 'WRAP', device: 'FUTURE_LOCK' },
 
-            // McGraw
+            // Logic
             fact_check: { strategy: 'PRESS', device: 'LOGIC_TRAP' },
             past_behavior_predictor: { strategy: 'PRESS', device: 'TIMELINE_SNAP' },
             ownership_demand: { strategy: 'PRESS', device: 'AGENCY_BINARY' },
@@ -589,8 +589,8 @@ export class PRISMProcessor {
             required_strategy: mapped.strategy,
             suggested_device: mapped.device,
             instruction: prismResponse.internalMonologue.strategyPlan,
-            tone: kernel === 'WINFREY' ? 'warm_authority'
-                : kernel === 'WALTERS' ? 'skeptical_precision'
+            tone: kernel === 'EMPATHY' ? 'warm_authority'
+                : kernel === 'PRECISION' ? 'skeptical_precision'
                     : 'warm_authority',
             posture: prismResponse.pressureScore > 7 ? 'confront_soft'
                 : prismResponse.pressureScore > 4 ? 'lean_in'
@@ -620,11 +620,11 @@ export class PRISMProcessor {
         const profile = KERNEL_PROFILES[kernel];
 
         switch (kernel) {
-            case 'WALTERS':
+            case 'PRECISION':
                 return `<soft>${text.split('.')[0]}.</soft> <sharp>${text.split('.').slice(1).join('.')}</sharp>`;
-            case 'WINFREY':
+            case 'EMPATHY':
                 return `<warm>${text}</warm>`;
-            case 'MCGRAW':
+            case 'LOGIC':
                 return `<staccato>${text}</staccato>`;
             default:
                 return text;
@@ -637,7 +637,7 @@ export class PRISMProcessor {
 // =============================================================================
 
 export function parseActivationCommand(input: string): PRISMKernel | null {
-    const match = input.match(/\/activate\s+(WALTERS|WINFREY|MCGRAW)/i);
+    const match = input.match(/\/activate\s+(PRECISION|EMPATHY|LOGIC)/i);
     if (match) {
         return match[1].toUpperCase() as PRISMKernel;
     }
