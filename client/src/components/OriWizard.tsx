@@ -19,7 +19,7 @@ interface OriWizardProps {
   onCancel: () => void
 }
 
-// Probing question templates - Ori digs deeper like Oprah/Barbara Walters
+// Probing question templates - Ori digs deeper with warmth + precision
 const PROBING_TEMPLATES = {
   surface: [
     "Tell me what happened. Just the facts first.",

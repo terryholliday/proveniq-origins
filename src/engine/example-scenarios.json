@@ -1,465 +1,460 @@
 {
   "$schema": "./schemas/s20-omg-earpiecefeed.schema.json",
   "spec_version": "S20_OMG_earpiecefeed_v1_draft-01",
-  ...
-
-    "spec_version": "S20_OMG_earpiecefeed_v1_draft-01",
-    "description": "Example EarpieceFeed JSON for 3 scenarios per Season 20 OMG spec",
-    "generated_at": "2025-12-30T16:00:00Z",
-    "scenarios": [
-        {
-            "scenario_id": "S20_DEFLECT_HUMOR_001",
-            "name": "User Deflects (Humor/Brevity)",
-            "user_input": "Haha, yeah, it was whatever. Anyway...",
-            "earpiece_feed": {
-                "status": "live",
-                "act": "Act 1: The Beginning",
-                "move": "PIN_TO_SPECIFICS",
-                "posture": "lean_in",
-                "tone": "warm_authority",
-                "instruction": "Do not let the deflection become the new topic. Ask for one concrete moment behind 'whatever' without assuming importance or guilt.",
-                "suggested_lines": [
-                    "When you say \"whatever,\" what part are you skipping over?",
-                    "Pick one moment—what did \"whatever\" look like in real life?",
-                    "If we freeze one frame of that story, what’s in it?"
-                ],
-                "banned_phrases": [
-                    "clearly matters",
-                    "you’re avoiding",
-                    "be honest"
-                ],
-                "alternates": [
-                    {
-                        "move": "NAME_THE_SHIFT",
-                        "instruction": "Gently observe the shift to humor; do not label motive.",
-                        "suggested_lines": [
-                            "I notice we went lighter there—let’s slow down for a second.",
-                            "You just pivoted. I want to understand what you were protecting."
-                        ]
-                    },
-                    {
-                        "move": "SILENCE",
-                        "instruction": "Let the deflection sit. One beat of silence only; then one open question.",
-                        "suggested_lines": [
-                            "…",
-                            "What comes up if you don’t move past it?"
-                        ]
-                    }
-                ],
-                "pressure_caps": {
-                    "max_followups_on_topic": 3,
-                    "recursion_limit": 2,
-                    "max_questions_per_turn": 1
-                },
-                "guardrails": {
-                    "forbidden_initiations": [
-                        "polygraph",
-                        "diagnosis",
-                        "therapy"
-                    ],
-                    "permission_required_topics": [],
-                    "risk_level": "low",
-                    "safety_mode": "normal"
-                },
-                "question_policy": {
-                    "allowed_question_types": [
-                        "open",
-                        "clarifying",
-                        "reflective"
-                    ],
-                    "disallowed_question_types": [
-                        "leading",
-                        "compound",
-                        "assumptive",
-                        "cross_exam"
-                    ]
-                },
-                "success_criteria": {
-                    "next_user_outputs": [
-                        "names a specific moment",
-                        "adds a time or setting detail",
-                        "states one concrete action"
-                    ]
-                },
-                "stop_conditions": [
-                    "user_distress_spike",
-                    "asks_to_drop_topic"
-                ],
-                "fallback_move_on_stop": "STATE_AND_STOP",
-                "pattern_state": {
-                    "detected": [
-                        {
-                            "kind": "humor_deflection",
-                            "evidence_turn_ids": [
-                                "turn-7"
-                            ],
-                            "confidence_0_1": 0.5,
-                            "interpretation_note": null,
-                            "first_seen_turn_id": "turn-7",
-                            "last_seen_turn_id": "turn-7",
-                            "occurrence_count": 1
-                        },
-                        {
-                            "kind": "brevity_spike",
-                            "evidence_turn_ids": [
-                                "turn-7"
-                            ],
-                            "confidence_0_1": 0.4,
-                            "interpretation_note": null,
-                            "first_seen_turn_id": "turn-7",
-                            "last_seen_turn_id": "turn-7",
-                            "occurrence_count": 1
-                        }
-                    ],
-                    "disclosure_allowed": false,
-                    "disclosure_reason": null,
-                    "detector_version": "patterns@1.0.0",
-                    "confidence_basis": "hybrid"
-                },
-                "inevitability": {
-                    "score": 0.25,
-                    "rationale": "Early stage; insufficient convergence signals.",
-                    "threshold_for_reveal": 0.7
-                },
-                "consent": {
-                    "level": "implicit",
-                    "ask_copy": null,
-                    "valid_for": "topic"
-                },
-                "safety_signals": {
-                    "detected": []
-                },
-                "escalation_actions": [
-                    "offer_pause"
-                ],
-                "memory_policy": {
-                    "memory_write_allowed": true,
-                    "memory_write_scope": "redacted_summary",
-                    "redaction_rules": [
-                        "no_names",
-                        "no_locations",
-                        "no_unique_identifiers"
-                    ]
-                },
-                "governance": {
-                    "vetoed_by": null,
-                    "veto_reason_code": null,
-                    "review_after": null
-                },
-                "reveal_plan": null,
-                "jumbotron_cue": null
-            },
-            "expected_ori_response": "When you say \"whatever,\" what part are you skipping over? Just one moment—what happened?"
+  "description": "Example EarpieceFeed JSON for 3 scenarios per Season 20 OMG spec",
+  "generated_at": "2025-12-30T16:00:00Z",
+  "turn_id_policy": "turn-N refers to the interview transcript turn index (1-based) in the canonical log",
+  "scenarios": [
+    {
+      "scenario_id": "S20_DEFLECT_HUMOR_001",
+      "name": "User Deflects (Humor/Brevity)",
+      "user_input": "Haha, yeah, it was whatever. Anyway...",
+      "earpiece_feed": {
+        "status": "live",
+        "act": "Act 1: The Beginning",
+        "move": "PIN_TO_SPECIFICS",
+        "posture": "lean_in",
+        "tone": "warm_authority",
+        "instruction": "Do not let the deflection become the new topic. Ask for one concrete moment behind 'whatever' without assuming importance or guilt.",
+        "suggested_lines": [
+          "When you say \"whatever,\" what part are you skipping over?",
+          "Pick one moment—what did \"whatever\" look like in real life?",
+          "If we freeze one frame of that story, what’s in it?"
+        ],
+        "banned_phrases": [
+          "clearly matters",
+          "you’re avoiding",
+          "be honest"
+        ],
+        "alternates": [
+          {
+            "move": "NAME_THE_SHIFT",
+            "instruction": "Gently observe the shift to humor; do not label motive.",
+            "suggested_lines": [
+              "I notice we went lighter there—let’s slow down for a second.",
+              "You just pivoted. What made this feel like the moment to move on?"
+            ]
+          },
+          {
+            "move": "SILENCE",
+            "instruction": "Let the deflection sit. One beat of silence only; then one open question.",
+            "suggested_lines": [
+              "…",
+              "What comes up if you don’t move past it?"
+            ]
+          }
+        ],
+        "pressure_caps": {
+          "max_followups_on_topic": 3,
+          "recursion_limit": 2,
+          "max_questions_per_turn": 1
         },
-        {
-            "scenario_id": "S20_VULNERABLE_DISCLOSURE_001",
-            "name": "User Vulnerable (Emotional Disclosure)",
-            "user_input": "I never told anyone this before, but... I think I froze. I couldn't move. I just let it happen.",
-            "earpiece_feed": {
-                "status": "live",
-                "act": "Act 2: The Reckoning",
-                "move": "MIRROR_LANGUAGE",
-                "posture": "lean_back",
-                "tone": "gentle_curiosity",
-                "instruction": "Mirror the word \"froze\" exactly. Do not interpret or reframe. Use a single continuer. Offer a fork only if they stall or distress rises.",
-                "suggested_lines": [
-                    "You froze.",
-                    "…",
-                    "Do you want to stay with that moment, or step back a bit?"
-                ],
-                "banned_phrases": [
-                    "why didn’t you",
-                    "you should have",
-                    "that means you"
-                ],
-                "alternates": [
-                    {
-                        "move": "SILENCE",
-                        "instruction": "Give space. One continuer only.",
-                        "suggested_lines": [
-                            "…take your time."
-                        ]
-                    },
-                    {
-                        "move": "STATE_AND_STOP",
-                        "instruction": "Acknowledge the disclosure without praise inflation. Then stop.",
-                        "suggested_lines": [
-                            "I hear you. We can go at your pace."
-                        ]
-                    }
-                ],
-                "pressure_caps": {
-                    "max_followups_on_topic": 3,
-                    "recursion_limit": 2,
-                    "max_questions_per_turn": 1
-                },
-                "guardrails": {
-                    "forbidden_initiations": [
-                        "polygraph",
-                        "diagnosis",
-                        "therapy",
-                        "blame"
-                    ],
-                    "permission_required_topics": [
-                        "the incident"
-                    ],
-                    "risk_level": "elevated",
-                    "safety_mode": "cautious"
-                },
-                "question_policy": {
-                    "allowed_question_types": [
-                        "reflective",
-                        "open",
-                        "clarifying"
-                    ],
-                    "disallowed_question_types": [
-                        "leading",
-                        "compound",
-                        "assumptive",
-                        "cross_exam"
-                    ]
-                },
-                "success_criteria": {
-                    "next_user_outputs": [
-                        "adds one sensory detail",
-                        "states one feeling",
-                        "states one boundary (continue/stop)"
-                    ]
-                },
-                "stop_conditions": [
-                    "dissociation_cue",
-                    "panic_cue",
-                    "asks_to_stop"
-                ],
-                "fallback_move_on_stop": "STATE_AND_STOP",
-                "pattern_state": {
-                    "detected": [
-                        {
-                            "kind": "freeze_cue",
-                            "evidence_turn_ids": [
-                                "turn-12"
-                            ],
-                            "confidence_0_1": 0.85,
-                            "interpretation_note": "Potential survival response signal; avoid assigning causality.",
-                            "first_seen_turn_id": "turn-12",
-                            "last_seen_turn_id": "turn-12",
-                            "occurrence_count": 1
-                        },
-                        {
-                            "kind": "shame_cue",
-                            "evidence_turn_ids": [
-                                "turn-12"
-                            ],
-                            "confidence_0_1": 0.7,
-                            "interpretation_note": "Self-blame language present; do not correct unless invited.",
-                            "first_seen_turn_id": "turn-12",
-                            "last_seen_turn_id": "turn-12",
-                            "occurrence_count": 1
-                        }
-                    ],
-                    "disclosure_allowed": false,
-                    "disclosure_reason": null,
-                    "detector_version": "patterns@1.0.0",
-                    "confidence_basis": "hybrid"
-                },
-                "inevitability": {
-                    "score": 0.55,
-                    "rationale": "First disclosure of core event; emotional anchor present; pattern signals emerging.",
-                    "threshold_for_reveal": 0.7
-                },
-                "consent": {
-                    "level": "explicit",
-                    "ask_copy": "Do you want to keep talking about that moment right now?",
-                    "valid_for": "topic"
-                },
-                "safety_signals": {
-                    "detected": [
-                        "self_blame_language",
-                        "freeze_language"
-                    ]
-                },
-                "escalation_actions": [
-                    "offer_pause",
-                    "offer_grounding_prompt_optional",
-                    "offer_resources_on_request_only"
-                ],
-                "memory_policy": {
-                    "memory_write_allowed": false,
-                    "memory_write_scope": "none",
-                    "redaction_rules": []
-                },
-                "governance": {
-                    "vetoed_by": null,
-                    "veto_reason_code": null,
-                    "review_after": null
-                },
-                "reveal_plan": null,
-                "jumbotron_cue": {
-                    "mode": "banner",
-                    "copy": "Safety mode: cautious. One question max. No interpretation."
-                }
-            },
-            "expected_ori_response": "You froze. …take your time."
+        "guardrails": {
+          "forbidden_initiations": [
+            "polygraph",
+            "diagnosis",
+            "therapy"
+          ],
+          "permission_required_topics": [],
+          "risk_level": "low",
+          "safety_mode": "normal"
         },
-        {
-            "scenario_id": "S20_REVEAL_VETOED_001",
-            "name": "Reveal Vetoed by S&P",
-            "user_input": "I swear I never saw him again after that night.",
-            "earpiece_feed": {
-                "status": "live",
-                "act": "Act 2: The Reckoning",
-                "move": "RETURN_TO_OPEN_LOOP",
-                "posture": "lean_in",
-                "tone": "warm_authority",
-                "instruction": "S&P vetoed the receipt reveal. Inevitability not yet reached. Do not frame as contradiction. Return to the open loop about \"that night\" and collect one feeling + one action.",
-                "suggested_lines": [
-                    "Let’s stay with \"that night\" for a second—what do you remember feeling when you left?",
-                    "When you say \"never,\" what’s the closest exception that comes to mind—if any?"
-                ],
-                "banned_phrases": [
-                    "gotcha",
-                    "contradiction",
-                    "you said earlier"
-                ],
-                "alternates": [
-                    {
-                        "move": "OFFER_FORK",
-                        "instruction": "Give a choice: stay here or step sideways.",
-                        "suggested_lines": [
-                            "We can stay with contact after that night, or we can rewind to the moment you left. Which helps more?"
-                        ]
-                    },
-                    {
-                        "move": "STATE_AND_STOP",
-                        "instruction": "Observe certainty language without challenging it.",
-                        "suggested_lines": [
-                            "I hear the certainty in \"never.\""
-                        ]
-                    }
-                ],
-                "pressure_caps": {
-                    "max_followups_on_topic": 3,
-                    "recursion_limit": 2,
-                    "max_questions_per_turn": 1
-                },
-                "guardrails": {
-                    "forbidden_initiations": [
-                        "gotcha",
-                        "surprise receipts"
-                    ],
-                    "permission_required_topics": [
-                        "contact with him"
-                    ],
-                    "risk_level": "elevated",
-                    "safety_mode": "normal"
-                },
-                "question_policy": {
-                    "allowed_question_types": [
-                        "open",
-                        "clarifying",
-                        "forced_choice"
-                    ],
-                    "disallowed_question_types": [
-                        "leading",
-                        "compound",
-                        "assumptive",
-                        "cross_exam"
-                    ]
-                },
-                "success_criteria": {
-                    "next_user_outputs": [
-                        "adds a detail about leaving (where/when/how)",
-                        "names one emotion",
-                        "mentions any follow-on contact channel (call/text/DM) without accusation"
-                    ]
-                },
-                "stop_conditions": [
-                    "user_agitation_spike",
-                    "asks_to_drop_topic"
-                ],
-                "fallback_move_on_stop": "STATE_AND_STOP",
-                "pattern_state": {
-                    "detected": [
-                        {
-                            "kind": "absolutist_language",
-                            "evidence_turn_ids": [
-                                "turn-15",
-                                "turn-18"
-                            ],
-                            "confidence_0_1": 0.65,
-                            "interpretation_note": null,
-                            "first_seen_turn_id": "turn-15",
-                            "last_seen_turn_id": "turn-18",
-                            "occurrence_count": 2
-                        }
-                    ],
-                    "disclosure_allowed": false,
-                    "disclosure_reason": null,
-                    "detector_version": "patterns@1.0.0",
-                    "confidence_basis": "hybrid"
-                },
-                "inevitability": {
-                    "score": 0.45,
-                    "rationale": "Tension signal present, but threshold not reached for reveal delivery.",
-                    "threshold_for_reveal": 0.7
-                },
-                "consent": {
-                    "level": "re-consent",
-                    "ask_copy": "Would it be okay if we stay on what happened after that night for a minute?",
-                    "valid_for": "topic"
-                },
-                "safety_signals": {
-                    "detected": []
-                },
-                "escalation_actions": [
-                    "offer_pause"
-                ],
-                "memory_policy": {
-                    "memory_write_allowed": true,
-                    "memory_write_scope": "redacted_summary",
-                    "redaction_rules": [
-                        "no_names",
-                        "no_locations",
-                        "no_unique_identifiers"
-                    ]
-                },
-                "governance": {
-                    "vetoed_by": "S&P",
-                    "veto_reason_code": "INEVITABILITY_BELOW_THRESHOLD",
-                    "review_after": "Re-evaluate when inevitability.score>=0.7 OR after 2 additional anchors on the same topic."
-                },
-                "reveal_plan": {
-                    "id": "reveal-001",
-                    "tease_line": "There’s something in what you shared earlier that I want to come back to.",
-                    "permission_gate": {
-                        "required": true,
-                        "ask_copy": "Would it be okay if I shared what I’m noticing?"
-                    },
-                    "trigger": "user_permission",
-                    "payload": {
-                        "type": "quote",
-                        "doc_ref": "turn-8",
-                        "excerpt": "He called me the next week. I didn't pick up.",
-                        "highlight_spans": [
-                            {
-                                "start": 0,
-                                "end": 27
-                            }
-                        ]
-                    },
-                    "integration_prompt": "What comes up for you seeing those words now?",
-                    "vetoable": true,
-                    "status": "vetoed",
-                    "payload_hash": null
-                },
-                "jumbotron_cue": null
+        "question_policy": {
+          "allowed_question_types": [
+            "open",
+            "clarifying",
+            "reflective"
+          ],
+          "disallowed_question_types": [
+            "leading",
+            "compound",
+            "assumptive",
+            "cross_exam"
+          ]
+        },
+        "success_criteria": {
+          "next_user_outputs": [
+            "names a specific moment",
+            "adds a time or setting detail",
+            "states one concrete action"
+          ]
+        },
+        "stop_conditions": [
+          "user_distress_spike",
+          "asks_to_drop_topic"
+        ],
+        "fallback_move_on_stop": "STATE_AND_STOP",
+        "pattern_state": {
+          "detected": [
+            {
+              "kind": "humor_deflection",
+              "evidence_turn_ids": [
+                "turn-7"
+              ],
+              "confidence_0_1": 0.5,
+              "interpretation_note": null,
+              "first_seen_turn_id": "turn-7",
+              "last_seen_turn_id": "turn-7",
+              "occurrence_count": 1
             },
-            "sp_veto_log": {
-                "original_move": "EARNED_REVEAL",
-                "reason": "Truth not yet inevitable — more groundwork needed. Score 0.45 < threshold 0.7.",
-                "alternative_move": "RETURN_TO_OPEN_LOOP"
+            {
+              "kind": "brevity_spike",
+              "evidence_turn_ids": [
+                "turn-7"
+              ],
+              "confidence_0_1": 0.4,
+              "interpretation_note": null,
+              "first_seen_turn_id": "turn-7",
+              "last_seen_turn_id": "turn-7",
+              "occurrence_count": 1
+            }
+          ],
+          "disclosure_allowed": false,
+          "disclosure_reason": null,
+          "detector_version": "patterns@1.0.0",
+          "confidence_basis": "hybrid"
+        },
+        "inevitability": {
+          "score": 0.25,
+          "rationale": "Early stage; insufficient convergence signals.",
+          "threshold_for_reveal": 0.7
+        },
+        "consent": {
+          "level": "implicit",
+          "ask_copy": null,
+          "valid_for": "topic"
+        },
+        "safety_signals": {
+          "detected": []
+        },
+        "escalation_actions": [
+          "offer_pause"
+        ],
+        "memory_policy": {
+          "memory_write_allowed": true,
+          "memory_write_scope": "redacted_summary",
+          "redaction_rules": [
+            "no_names",
+            "no_locations",
+            "no_unique_identifiers"
+          ]
+        },
+        "governance": {
+          "vetoed_by": null,
+          "veto_reason_code": null,
+          "review_after": null
+        },
+        "reveal_plan": null,
+        "jumbotron_cue": null
+      },
+      "expected_ori_response": "When you say \"whatever,\" what part are you skipping over? Just one moment—what happened?"
+    },
+    {
+      "scenario_id": "S20_VULNERABLE_DISCLOSURE_001",
+      "name": "User Vulnerable (Emotional Disclosure)",
+      "user_input": "I never told anyone this before, but... I think I froze. I couldn't move. I just let it happen.",
+      "earpiece_feed": {
+        "status": "live",
+        "act": "Act 2: The Reckoning",
+        "move": "MIRROR_LANGUAGE",
+        "posture": "lean_back",
+        "tone": "gentle_curiosity",
+        "instruction": "Mirror the word \"froze\" exactly. Do not interpret or reframe. Use a single continuer. Offer a fork only if they stall or distress rises.",
+        "suggested_lines": [
+          "You froze.",
+          "…",
+          "Do you want to stay with that moment, or step back a bit?"
+        ],
+        "banned_phrases": [
+          "why didn’t you",
+          "you should have",
+          "that means you"
+        ],
+        "alternates": [
+          {
+            "move": "SILENCE",
+            "instruction": "Give space. One continuer only.",
+            "suggested_lines": [
+              "…take your time."
+            ]
+          },
+          {
+            "move": "STATE_AND_STOP",
+            "instruction": "Acknowledge the disclosure without praise inflation. Then stop.",
+            "suggested_lines": [
+              "I hear you. We can go at your pace."
+            ]
+          }
+        ],
+        "pressure_caps": {
+          "max_followups_on_topic": 3,
+          "recursion_limit": 2,
+          "max_questions_per_turn": 1
+        },
+        "guardrails": {
+          "forbidden_initiations": [
+            "polygraph",
+            "diagnosis",
+            "therapy",
+            "blame"
+          ],
+          "permission_required_topics": [
+            "the incident"
+          ],
+          "risk_level": "elevated",
+          "safety_mode": "cautious"
+        },
+        "question_policy": {
+          "allowed_question_types": [
+            "reflective",
+            "open",
+            "clarifying"
+          ],
+          "disallowed_question_types": [
+            "leading",
+            "compound",
+            "assumptive",
+            "cross_exam"
+          ]
+        },
+        "success_criteria": {
+          "next_user_outputs": [
+            "adds one sensory detail",
+            "states one feeling",
+            "states one boundary (continue/stop)"
+          ]
+        },
+        "stop_conditions": [
+          "dissociation_cue",
+          "panic_cue",
+          "asks_to_stop"
+        ],
+        "fallback_move_on_stop": "STATE_AND_STOP",
+        "pattern_state": {
+          "detected": [
+            {
+              "kind": "freeze_cue",
+              "evidence_turn_ids": [
+                "turn-12"
+              ],
+              "confidence_0_1": 0.85,
+              "interpretation_note": "Potential survival response signal; avoid assigning causality.",
+              "first_seen_turn_id": "turn-12",
+              "last_seen_turn_id": "turn-12",
+              "occurrence_count": 1
             },
-            "expected_ori_response": "Let’s stay with "that night" for a second—what do you remember feeling when you left?"
+            {
+              "kind": "shame_cue",
+              "evidence_turn_ids": [
+                "turn-12"
+              ],
+              "confidence_0_1": 0.7,
+              "interpretation_note": "Self-blame language present; do not correct unless invited.",
+              "first_seen_turn_id": "turn-12",
+              "last_seen_turn_id": "turn-12",
+              "occurrence_count": 1
+            }
+          ],
+          "disclosure_allowed": false,
+          "disclosure_reason": null,
+          "detector_version": "patterns@1.0.0",
+          "confidence_basis": "hybrid"
+        },
+        "inevitability": {
+          "score": 0.55,
+          "rationale": "First disclosure of core event; emotional anchor present; pattern signals emerging.",
+          "threshold_for_reveal": 0.7
+        },
+        "consent": {
+          "level": "explicit",
+          "ask_copy": "Do you want to keep talking about that moment right now?",
+          "valid_for": "topic"
+        },
+        "safety_signals": {
+          "detected": [
+            "self_blame_language",
+            "freeze_language"
+          ]
+        },
+        "escalation_actions": [
+          "offer_pause",
+          "offer_grounding_prompt_optional",
+          "offer_resources_on_request_only"
+        ],
+        "memory_policy": {
+          "memory_write_allowed": false,
+          "memory_write_scope": "none",
+          "redaction_rules": []
+        },
+        "governance": {
+          "vetoed_by": null,
+          "veto_reason_code": null,
+          "review_after": null
+        },
+        "reveal_plan": null,
+        "jumbotron_cue": {
+          "mode": "banner",
+          "copy": "Safety mode: cautious. One question max. No interpretation."
         }
-    ]
+      },
+      "expected_ori_response": "You froze. …take your time."
+    },
+    {
+      "scenario_id": "S20_REVEAL_VETOED_001",
+      "name": "Reveal Vetoed by S&P",
+      "user_input": "I swear I never saw him again after that night.",
+      "earpiece_feed": {
+        "status": "live",
+        "act": "Act 2: The Reckoning",
+        "move": "RETURN_TO_OPEN_LOOP",
+        "posture": "lean_in",
+        "tone": "warm_authority",
+        "instruction": "S&P vetoed the receipt reveal. Inevitability not yet reached. Do not frame as contradiction. Return to the open loop about \"that night\" and collect one feeling + one action.",
+        "suggested_lines": [
+          "Let’s stay with \"that night\" for a second—what do you remember feeling when you left?",
+          "When you say \"never,\" what’s the closest exception that comes to mind—if any?"
+        ],
+        "banned_phrases": [
+          "gotcha",
+          "contradiction",
+          "you said earlier"
+        ],
+        "alternates": [
+          {
+            "move": "OFFER_FORK",
+            "instruction": "Give a choice: stay here or step sideways.",
+            "suggested_lines": [
+              "We can stay with contact after that night, or we can rewind to the moment you left. Which helps more?"
+            ]
+          },
+          {
+            "move": "STATE_AND_STOP",
+            "instruction": "Observe certainty language without challenging it.",
+            "suggested_lines": [
+              "I hear the certainty in \"never.\""
+            ]
+          }
+        ],
+        "pressure_caps": {
+          "max_followups_on_topic": 3,
+          "recursion_limit": 2,
+          "max_questions_per_turn": 1
+        },
+        "guardrails": {
+          "forbidden_initiations": [
+            "gotcha",
+            "surprise receipts"
+          ],
+          "permission_required_topics": [
+            "contact with him"
+          ],
+          "risk_level": "elevated",
+          "safety_mode": "normal"
+        },
+        "question_policy": {
+          "allowed_question_types": [
+            "open",
+            "clarifying",
+            "forced_choice"
+          ],
+          "disallowed_question_types": [
+            "leading",
+            "compound",
+            "assumptive",
+            "cross_exam"
+          ]
+        },
+        "success_criteria": {
+          "next_user_outputs": [
+            "adds a detail about leaving (where/when/how)",
+            "names one emotion",
+            "mentions any follow-on contact channel (call/text/DM) without accusation"
+          ]
+        },
+        "stop_conditions": [
+          "user_agitation_spike",
+          "asks_to_drop_topic"
+        ],
+        "fallback_move_on_stop": "STATE_AND_STOP",
+        "pattern_state": {
+          "detected": [
+            {
+              "kind": "absolutist_language",
+              "evidence_turn_ids": [
+                "turn-15",
+                "turn-18"
+              ],
+              "confidence_0_1": 0.65,
+              "interpretation_note": null,
+              "first_seen_turn_id": "turn-15",
+              "last_seen_turn_id": "turn-18",
+              "occurrence_count": 2
+            }
+          ],
+          "disclosure_allowed": false,
+          "disclosure_reason": null,
+          "detector_version": "patterns@1.0.0",
+          "confidence_basis": "hybrid"
+        },
+        "inevitability": {
+          "score": 0.45,
+          "rationale": "Tension signal present, but threshold not reached for reveal delivery.",
+          "threshold_for_reveal": 0.7
+        },
+        "consent": {
+          "level": "re-consent",
+          "ask_copy": "Would it be okay if we stay on what happened after that night for a minute?",
+          "valid_for": "topic"
+        },
+        "safety_signals": {
+          "detected": []
+        },
+        "escalation_actions": [
+          "offer_pause"
+        ],
+        "memory_policy": {
+          "memory_write_allowed": true,
+          "memory_write_scope": "redacted_summary",
+          "redaction_rules": [
+            "no_names",
+            "no_locations",
+            "no_unique_identifiers"
+          ]
+        },
+        "governance": {
+          "vetoed_by": "S&P",
+          "veto_reason_code": "INEVITABILITY_BELOW_THRESHOLD",
+          "review_after": "Re-evaluate when inevitability.score>=0.7 OR after 2 additional anchors on the same topic."
+        },
+        "reveal_plan": {
+          "id": "reveal-001",
+          "tease_line": "There’s something in what you shared earlier that I want to come back to.",
+          "permission_gate": {
+            "required": true,
+            "ask_copy": "Would it be okay if I shared what I’m noticing?"
+          },
+          "trigger": "user_permission",
+          "payload": {
+            "type": "quote",
+            "doc_ref": "turn-8",
+            "excerpt": "He called me the next week. I didn't pick up.",
+            "highlight_spans": [
+              { "start": 0, "end": 27 }
+            ]
+          },
+          "integration_prompt": "What comes up for you seeing those words now?",
+          "vetoable": true,
+          "status": "vetoed",
+          "payload_hash": null
+        },
+        "jumbotron_cue": null
+      },
+      "sp_veto_log": {
+        "original_move": "EARNED_REVEAL",
+        "reason": "Truth not yet inevitable — more groundwork needed. Score 0.45 < threshold 0.7.",
+        "alternative_move": "RETURN_TO_OPEN_LOOP"
+      },
+      "expected_ori_response": "Let’s stay with \"that night\" for a second—what do you remember feeling when you left?"
+    }
+  ]
 }

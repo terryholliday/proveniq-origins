@@ -2,7 +2,7 @@
   "version": "0.1",
   "note": "Starter placeholder. Replace with research outputs from transcript analysis.",
   "personas": {
-    "OPRAH_BASE": {
+    "EMPATHY_BASE": {
       "target_interviewer_word_ratio_max": 0.25,
       "target_response_tokens_max": 180,
       "question_density_max": 1,
@@ -14,7 +14,7 @@
         "fragments"
       ]
     },
-    "WALTERS_NARROW": {
+    "PRECISION_NARROW": {
       "target_interviewer_word_ratio_max": 0.2,
       "target_response_tokens_max": 140,
       "question_density_max": 1,
@@ -26,7 +26,7 @@
         "compound_complex"
       ]
     },
-    "PHIL_CLARIFY": {
+    "LOGIC_CLARIFY": {
       "target_interviewer_word_ratio_max": 0.2,
       "target_response_tokens_max": 120,
       "question_density_max": 1,

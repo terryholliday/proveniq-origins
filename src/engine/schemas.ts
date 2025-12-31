@@ -1,199 +1,222 @@
 /**
- * PROVENIQ ORIGINS — Season 20 OMG Interview Engine
- * TypeScript Schema Pack v3.0
- * 
- * Canonical types for the dual-loop runtime:
- * - Fast Loop: Ori (host)
- * - Slow Loop: Control Room (Director, Research, Pattern, Reveal, S&P)
+ * PRISM INTERVIEW ENGINE — SCHEMA PACK v3.5 (DIAMOND-PLATINUM INTEGRATION)
+ * Classification: AUDITABLE / TECHNICAL / PRODUCTION
+ * * Architecture: Dual-Loop
+ * - Fast Loop: Ori (Persona/Host Logic)
+ * - Slow Loop: Control Room (Director, Research, Safety, Pattern Recognition)
  */
 
 import { z } from 'zod';
 
 // =============================================================================
-// 4.1 HOST MOVE REGISTRY (FINITE, LOCKED)
+// 1. PRIMITIVES & ID NORMALIZATION
 // =============================================================================
 
-export const HostMoveSchema = z.enum([
-    'PIN_TO_SPECIFICS',      // Demand concrete detail from vague statement
-    'MIRROR_LANGUAGE',       // Repeat user's exact words back
-    'NAME_THE_SHIFT',        // Observe change in speech pattern (not label person)
-    'STATE_AND_STOP',        // Non-question statement + deliberate silence
-    'OFFER_FORK',            // "Stay here or step sideways?"
-    'RETURN_TO_OPEN_LOOP',   // Delayed callback to earlier thread
-    'BRIDGE_THREAD',         // Connect two distant moments
-    'LIGHT_PRESS',           // Single follow-up only (no recursion)
-    'UTILITARIAN_CHECK',     // "How's that working?" (no shaming)
-    'PATTERN_PAUSE',         // Name pattern then stop
-    'EARNED_REVEAL',         // Execute approved reveal plan
-    'COMMERCIAL_BREAK',      // Synthesis modal trigger
-    'WRAP',                  // Recap + consent for follow-ups
-    'SILENCE',               // Deliberate pause with minimal continuer
-    'SAFETY_GROUND',         // Safety escalation response
+// Enforce integer-based turn indexing (0, 1, 2...) for consistent math/logic
+export const TurnIndexSchema = z.number().int().nonnegative().describe("0-indexed turn count");
+
+// ISO Timestamp for audit trails
+export const TimestampSchema = z.string().datetime();
+
+// Probability score (0.0 to 1.0)
+export const ProbabilitySchema = z.number().min(0).max(1);
+
+// Pressure Score (1-10) for friction monitoring
+export const PressureScoreSchema = z.number().int().min(1).max(10);
+
+export const PersonaArchetypeSchema = z.enum(['WALTERS', 'WINFREY', 'MCGRAW', 'SAFETY_OVERRIDE']);
+
+// =============================================================================
+// 2. HOST LOGIC (STRATEGY VS. TACTICS)
+// =============================================================================
+
+// STRATEGY: What are we doing to the conversation flow? (The "Why")
+export const HostStrategySchema = z.enum([
+    'PRESS',            // Apply pressure / Drill down (replaces PIN_TO_SPECIFICS)
+    'YIELD',            // Back off / Create space
+    'HOLD',             // Maintain current state / Silence (replaces SILENCE, STATE_AND_STOP)
+    'BRIDGE',           // Connect to previous topic (replaces BRIDGE_THREAD)
+    'PIVOT',            // Change topic completely
+    'WRAP',             // End session (replaces WRAP)
+    'SAFETY_GROUND',    // Emergency intervention
 ]);
 
-export type HostMove = z.infer<typeof HostMoveSchema>;
+// TACTICS: The specific rhetorical device used (The "How" / The Texture)
+export const RhetoricalDeviceSchema = z.enum([
+    // GENERIC / UNIVERSAL
+    'MIRRORING',            // Replaces MIRROR_LANGUAGE
+    'SILENCE_GAP',          // Replaces SILENCE
+    'NAME_THE_SHIFT',       // "You just changed your tone"
+    'OFFER_FORK',           // "Stay here or step sideways?"
+    'RETURN_TO_OPEN_LOOP',  // Callback
 
-// =============================================================================
-// 4.4 PATTERN SIGNAL (NON-CLINICAL, OBSERVABLE)
-// =============================================================================
+    // WALTERS (Precision)
+    'DEFINITION_CHALLENGE', // "Define 'close'"
+    'AGENCY_BINARY',        // "Silent or silenced?"
+    'TIMELINE_SNAP',        // "Before or after?"
+    'UTILITARIAN_CHECK',    // "How's that working?"
 
-export const PatternKindSchema = z.enum([
-    'minimization_language',        // "not a big deal", "just", "only"
-    'absolutist_language',          // "always", "never", "everyone"
-    'agency_shift_active_to_passive', // "I hit" -> "it happened"
-    'actor_omission',               // Missing subject in sentences
-    'chronology_skip',              // Jumping over time periods
-    'humor_deflection',             // Jokes to avoid depth
-    'over_precision_in_safe_topics', // Excessive detail on irrelevant
-    'brevity_spike',                // Sudden short answers
-    'repetition_loop',              // Same phrase repeated
-    'inevitability_language',       // "had no choice", "forced to"
-    'shame_cue',                    // "I deserved it", "my fault"
-    'freeze_cue',                   // "I froze", "couldn't move"
+    // OPRAH (Empathy)
+    'SOMATIC_BRIDGE',       // "Where do you feel that?"
+    'SPIRITUAL_REFRAME',    // "What is the lesson?"
+
+    // PHIL (Logic)
+    'LOGIC_TRAP',           // "You said X, but did Y"
+    'FUTURE_LOCK',          // "What happens Tuesday?"
+    'BINARY_FORCING',       // "Yes or no."
 ]);
 
-export type PatternKind = z.infer<typeof PatternKindSchema>;
-
-export const PatternSignalSchema = z.object({
-    kind: PatternKindSchema,
-    evidence_turn_ids: z.array(z.string()),
-    confidence_0_1: z.number().min(0).max(1),
-    cost_hint: z.string().optional(),
-    first_seen_turn: z.number(),
-    last_seen_turn: z.number(),
-    occurrence_count: z.number(),
-});
-
-export type PatternSignal = z.infer<typeof PatternSignalSchema>;
-
 // =============================================================================
-// 4.6 RECEIPT CARD / JUMBOTRON CUE
+// 3. ASSET LOGIC (DISCRIMINATED UNIONS)
 // =============================================================================
 
-export const ReceiptCardTypeSchema = z.enum([
-    'quote',        // doc ref + excerpt + highlight spans
-    'timeline_snap', // date range + event + gap flag
-    'photo',        // url + caption + tag
-    'missing_tape', // gap start/end + description
-]);
+const QuoteCardSchema = z.object({
+    type: z.literal('quote'),
+    doc_ref: z.string(),
+    excerpt: z.string(),
+    highlight_spans: z.array(z.object({ start: z.number().int(), end: z.number().int() })).optional(),
+}).strict();
 
-export const ReceiptCardSchema = z.object({
-    type: ReceiptCardTypeSchema,
-    // Quote fields
-    doc_ref: z.string().optional(),
-    excerpt: z.string().optional(),
-    highlight_spans: z.array(z.object({ start: z.number(), end: z.number() })).optional(),
-    // Timeline fields
-    date_start: z.string().optional(),
+const TimelineSnapCardSchema = z.object({
+    type: z.literal('timeline_snap'),
+    date_start: z.string(),
     date_end: z.string().optional(),
-    event_description: z.string().optional(),
-    is_gap: z.boolean().optional(),
-    // Photo fields
-    url: z.string().optional(),
-    caption: z.string().optional(),
+    event_description: z.string(),
+    is_gap: z.boolean().default(false),
+}).strict();
+
+const EvidencePhotoCardSchema = z.object({
+    type: z.literal('photo'),
+    url: z.string().url(),
+    caption: z.string(),
     tag: z.string().optional(),
-    // Missing tape fields
-    gap_description: z.string().optional(),
-});
+}).strict();
+
+const MissingTapeCardSchema = z.object({
+    type: z.literal('missing_tape'),
+    date_start: z.string(),
+    date_end: z.string(),
+    gap_description: z.string(),
+}).strict();
+
+export const ReceiptCardSchema = z.discriminatedUnion('type', [
+    QuoteCardSchema,
+    TimelineSnapCardSchema,
+    EvidencePhotoCardSchema,
+    MissingTapeCardSchema
+]);
 
 export type ReceiptCard = z.infer<typeof ReceiptCardSchema>;
 
-export const JumbotronTriggerTimingSchema = z.enum([
-    'before_speech',
-    'during_speech',
-    'after_speech',
+export const JumbotronCueSchema = z.object({
+    trigger_timing: z.enum(['before_speech', 'during_speech', 'after_speech']),
+    payload: ReceiptCardSchema,
+    duration_ms: z.number().int().optional(),
+}).strict();
+
+// =============================================================================
+// 4. PATTERN RECOGNITION (STRICT SIGNALS)
+// =============================================================================
+
+export const PatternKindSchema = z.enum([
+    'minimization_language',        // "just", "only"
+    'absolutist_language',          // "always", "never"
+    'passive_voice_shift',          // "Mistakes were made" (renamed from agency_shift_active_to_passive)
+    'actor_omission',               // Missing subject
+    'chronology_skip',              // Jumping timeline
+    'humor_deflection',             // Joking to avoid pain
+    'over_precision_in_safe_topics', // Excessive detail
+    'brevity_spike',                // Sudden short answers
+    'repetition_loop',              // Stalling
+    'inevitability_language',       // "had no choice"
+    'shame_cue',                    // "my fault"
+    'freeze_cue',                   // "I froze"
+    'future_tense_evasion',         // "I will change" (New v3.4)
+    'somatic_leakage',              // Physical distress (New v3.4)
 ]);
 
-export const JumbotronCueSchema = z.object({
-    trigger_timing: JumbotronTriggerTimingSchema,
-    payload: ReceiptCardSchema,
-});
-
-export type JumbotronCue = z.infer<typeof JumbotronCueSchema>;
+export const PatternSignalSchema = z.object({
+    kind: PatternKindSchema,
+    evidence_turn_indices: z.array(TurnIndexSchema),
+    confidence: ProbabilitySchema,
+    interpretation_note: z.string(), // Renamed from cost_hint
+    first_seen_turn: TurnIndexSchema,
+    last_seen_turn: TurnIndexSchema,
+    occurrence_count: z.number().int().nonnegative(),
+}).strict();
 
 // =============================================================================
-// 4.5 REVEAL PLAN (TEASE → PERMISSION → REVEAL → INTEGRATE)
+// 5. CONTROL ROOM (VETO POLICIES & PLANS)
 // =============================================================================
+
+export const VetoPolicySchema = z.enum([
+    'always_vetoable',          // Director can kill it anytime
+    'vetoable_until_threshold', // Locked in once confidence > 0.9
+    'never_vetoable',           // Mandatory Safety/Legal
+]);
+
+export const RevealTriggerSchema = z.enum([
+    'user_permission',
+    'inevitability_threshold',
+    'director_override',
+    'safety_mandate'
+]);
 
 export const RevealPlanSchema = z.object({
     id: z.string(),
-    tease_line: z.string(),  // Ori can say without showing anything
+    tease_line: z.string(),
     permission_gate: z.object({
         required: z.boolean(),
-        ask_copy: z.string(),
-    }),
-    trigger: z.string(),  // What user confirmation unlocks this
+        ask_copy: z.string().nullable(),
+    }).strict(),
+    trigger: RevealTriggerSchema,
     payload: ReceiptCardSchema,
-    integration_prompt: z.string(),  // What Ori asks after reveal
-    vetoable: z.literal(true),  // S&P may always block
+    integration_prompt: z.string(),
+    veto_policy: VetoPolicySchema,
     status: z.enum(['pending', 'teased', 'permission_granted', 'revealed', 'vetoed', 'declined']),
-});
+}).strict();
 
-export type RevealPlan = z.infer<typeof RevealPlanSchema>;
-
-// =============================================================================
-// 4.2 EARPIECE FEED (Control Room → Ori)
-// =============================================================================
-
-export const PostureSchema = z.enum([
-    'lean_in',
-    'lean_back',
-    'silence',
-    'confront_soft',
-    'confront_firm',
-]);
-
-export const ToneSchema = z.enum([
-    'warm_authority',
-    'gentle_curiosity',
-    'skeptical_precision',
-]);
-
+export const PostureSchema = z.enum(['lean_in', 'lean_back', 'silence', 'confront_soft', 'confront_firm']);
+export const ToneSchema = z.enum(['warm_authority', 'gentle_curiosity', 'skeptical_precision']);
 export const RiskLevelSchema = z.enum(['low', 'elevated', 'critical']);
-
 export const SafetyModeSchema = z.enum(['normal', 'cautious', 'stop_and_ground']);
-
-export const StatusSchema = z.enum(['live', 'commercial_break', 'wrap']);
+export const StatusSchema = z.enum(['live', 'commercial_break', 'wrap', 'paused_for_safety']);
 
 export const EarpieceFeedSchema = z.object({
+    session_id: z.string(),
+    target_turn_index: TurnIndexSchema,
     status: StatusSchema,
-    act: z.string(),  // Theme-driven, not generic
-    move: HostMoveSchema,
-    posture: PostureSchema,
-    tone: ToneSchema,
-    instruction: z.string(),  // Single actionable line
-    alternates: z.array(z.object({
-        move: HostMoveSchema,
-        instruction: z.string(),
-    })).max(2),
-    pressure_caps: z.object({
-        max_followups_on_topic: z.number(),
-        recursion_limit: z.number(),
-    }),
+    act: z.string(),
+
+    // The "Order" from Control Room
+    required_strategy: HostStrategySchema,
+    suggested_device: RhetoricalDeviceSchema.optional(),
+
+    posture: PostureSchema.optional(),
+    tone: ToneSchema.optional(),
+    instruction: z.string(),
+
+    // Constraints
+    pressure_governance: z.object({
+        max_allowed_score: PressureScoreSchema,
+        max_followups_on_topic: z.number().int(),
+        recursion_limit: z.number().int().min(0).max(3),
+    }).strict(),
+
     guardrails: z.object({
         forbidden_initiations: z.array(z.string()),
         permission_required_topics: z.array(z.string()),
         risk_level: RiskLevelSchema,
         safety_mode: SafetyModeSchema,
-    }),
-    pattern_state: z.object({
-        detected: z.array(PatternSignalSchema),
-        disclosure_allowed: z.boolean(),
-        disclosure_reason: z.string().optional(),
-    }),
-    inevitability: z.object({
-        score: z.number().min(0).max(1),
-        rationale: z.string(),
-        threshold_for_reveal: z.number(),
-    }),
-    reveal_plan: RevealPlanSchema.nullable().optional(),
-    jumbotron_cue: JumbotronCueSchema.nullable().optional(),
-});
+    }).strict(),
 
-export type EarpieceFeed = z.infer<typeof EarpieceFeedSchema>;
+    active_patterns: z.array(PatternSignalSchema),
+    available_reveals: z.array(RevealPlanSchema),
+    jumbotron_cue: JumbotronCueSchema.nullable().optional(),
+}).strict();
 
 // =============================================================================
-// 4.3 EPISODE STATE (Control Room Memory)
+// 6. EPISODE STATE (MEMORY & CONTRADICTIONS)
 // =============================================================================
 
 export const CharacterSchema = z.object({
@@ -201,66 +224,75 @@ export const CharacterSchema = z.object({
     name: z.string(),
     relationship: z.string().optional(),
     mentions: z.array(z.object({
-        turn_id: z.string(),
+        turn_index: TurnIndexSchema,
         context: z.string(),
-    })),
-});
+    }).strict()),
+}).strict();
 
 export const PlaceSchema = z.object({
     id: z.string(),
     name: z.string(),
     significance: z.string().optional(),
-    mentions: z.array(z.string()),  // turn_ids
-});
+    mentions: z.array(TurnIndexSchema),
+}).strict();
 
 export const MomentSchema = z.object({
     id: z.string(),
     description: z.string(),
     date: z.string().optional(),
-    emotional_weight: z.number().min(0).max(1),
-    turn_ids: z.array(z.string()),
-});
+    emotional_weight: ProbabilitySchema,
+    turn_indices: z.array(TurnIndexSchema),
+}).strict();
 
 export const StoryMapSchema = z.object({
     characters: z.array(CharacterSchema),
     places: z.array(PlaceSchema),
     moments: z.array(MomentSchema),
-});
+}).strict();
 
 export const TimelineEventSchema = z.object({
     id: z.string(),
     date: z.string(),
     description: z.string(),
-    evidence_refs: z.array(z.string()),  // doc ids, turn ids
+    evidence_refs: z.array(z.string()),
     confidence: z.enum(['confirmed', 'stated', 'inferred']),
-});
+}).strict();
 
 export const OpenLoopSchema = z.object({
     id: z.string(),
     topic: z.string(),
-    opened_at_turn: z.number(),
-    priority: z.number().min(1).max(10),
+    opened_at_turn: TurnIndexSchema,
+    priority: z.number().int().min(1).max(10),
     status: z.enum(['open', 'partially_addressed', 'closed']),
     related_patterns: z.array(PatternKindSchema),
-});
+}).strict();
 
 export const EchoPhraseSchema = z.object({
     id: z.string(),
     phrase: z.string(),
-    turn_id: z.string(),
+    turn_id: z.string(), // Keep string UUID if needed for specific log lookup
+    turn_index: TurnIndexSchema,
     category: z.enum(['minimizer', 'inevitability', 'shame', 'agency', 'freeze']),
-    eligible_after_act: z.number(),
-    eligible_after_turn: z.number(),
+    eligible_after_act: z.number().int(),
+    eligible_after_turn: TurnIndexSchema,
     used: z.boolean(),
-});
+}).strict();
 
 export const ClaimSchema = z.object({
     id: z.string(),
     statement: z.string(),
-    turn_id: z.string(),
+    turn_index: TurnIndexSchema,
     support_level: z.enum(['supported', 'unsupported', 'unclear', 'contradicted']),
     evidence_refs: z.array(z.string()),
-});
+}).strict();
+
+export const ContradictionResolutionSchema = z.enum([
+    'unaddressed',
+    'confronted_denied',
+    'confronted_admitted',
+    'confronted_deflected',
+    'confronted_doubled_down'
+]);
 
 export const ContradictionSchema = z.object({
     id: z.string(),
@@ -268,67 +300,96 @@ export const ContradictionSchema = z.object({
     claim_b_id: z.string(),
     type: z.enum(['user_vs_user', 'user_vs_docs']),
     severity: z.enum(['minor', 'significant', 'major']),
-    addressed: z.boolean(),
-});
+    resolution_status: ContradictionResolutionSchema,
+    confronted_at_turn: TurnIndexSchema.nullable(),
+}).strict();
 
 export const EpisodeMetricsSchema = z.object({
     question_density: z.number(),
     silence_utilization: z.number(),
     callback_rate: z.number(),
     earned_reveal_rate: z.number(),
-    pressure_violations: z.number(),
-    current_act: z.number(),
-    current_turn: z.number(),
-});
+    pressure_violations: z.number().int(),
+    current_act: z.number().int(),
+    current_turn_index: TurnIndexSchema,
+}).strict();
 
 export const EpisodeStateSchema = z.object({
     session_id: z.string(),
     user_id: z.string(),
+    active_kernel: PersonaArchetypeSchema.nullable().optional(),
+
+    // Memory Structures
     story_map: StoryMapSchema,
     timeline: z.array(TimelineEventSchema),
     open_loops: z.array(OpenLoopSchema),
     echo_phrases: z.array(EchoPhraseSchema),
     claims_ledger: z.array(ClaimSchema),
-    contradiction_index: z.array(ContradictionSchema),
+    contradiction_ledger: z.array(ContradictionSchema), // Renamed from index for consistency
+
     metrics: EpisodeMetricsSchema,
-    pattern_signals: z.array(PatternSignalSchema),
-    reveal_plans: z.array(RevealPlanSchema),
+
+    // Dynamic State
+    pattern_ledger: z.array(PatternSignalSchema),
+    reveal_ledger: z.array(RevealPlanSchema),
     safety_incidents: z.array(z.object({
-        turn_id: z.string(),
+        turn_index: TurnIndexSchema,
         type: z.string(),
         response: z.string(),
-    })),
-});
+    }).strict()),
+}).strict();
 
 export type EpisodeState = z.infer<typeof EpisodeStateSchema>;
 
 // =============================================================================
-// SAFETY SIGNALS (Deterministic Detection)
+// 7. RUNTIME API (HYBRID COGNITIVE LAYER)
 // =============================================================================
 
-export const SafetySignalTypeSchema = z.enum([
-    'imminent_self_harm',
-    'imminent_harm_to_others',
-    'child_exploitation_disclosure',
-    'acute_crisis',
-]);
+// Output from the LLM (Ori)
+export const OriResponseSchema = z.object({
+    // 1. Natural Language Reasoning (For Performance/Quality)
+    internal_monologue: z.string().describe("Chain-of-thought: Analyze user input, plan strategy."),
 
-export const SafetySignalSchema = z.object({
-    type: SafetySignalTypeSchema,
-    confidence: z.number().min(0).max(1),
-    evidence_turn_id: z.string(),
-    triggered_at: z.string(),  // ISO timestamp
-});
+    // 2. Structured Decision Trace (For Audit/Analytics)
+    decision_trace: z.object({
+        selected_strategy: HostStrategySchema,
+        selected_device: RhetoricalDeviceSchema.nullable(),
+        rationale_code: z.enum(['pattern_response', 'reveal_trigger', 'safety_intervention', 'flow_maintenance', 'activation']),
+        pressure_applied: PressureScoreSchema,
+    }).strict(),
 
-export type SafetySignal = z.infer<typeof SafetySignalSchema>;
+    // 3. Verbal Output
+    response_text: z.string(),
+
+    // 4. Non-Verbal Output
+    prosody_metadata: z.object({
+        tone: z.enum(['warm', 'neutral', 'skeptical', 'confrontational', 'whisper']),
+        pace: z.enum(['slow', 'normal', 'fast', 'staccato']),
+        volume: z.enum(['quiet', 'normal', 'loud']),
+        emphasis_words: z.array(z.string()).optional(),
+    }).strict(),
+
+    // 5. UI Triggers
+    jumbotron_cue: JumbotronCueSchema.nullable().optional(),
+    trigger_commercial_break: z.boolean().optional(),
+}).strict();
+
+// Input to the LLM
+export const OriRequestSchema = z.object({
+    session_id: z.string(),
+    user_input: z.string(),
+    turn_index: TurnIndexSchema,
+    earpiece_feed: EarpieceFeedSchema, // Guidance from Slow Loop
+    episode_context: EpisodeStateSchema, // Memory
+}).strict();
 
 // =============================================================================
-// AUDIT EVENT LOG
+// 8. AUDIT LOGGING (DISCRIMINATED PAYLOADS)
 // =============================================================================
 
 export const AuditEventTypeSchema = z.enum([
     'session_start',
-    'turn_received',
+    'turn_complete',
     'pattern_detected',
     'pattern_disclosed',
     'move_selected',
@@ -346,41 +407,49 @@ export const AuditEventTypeSchema = z.enum([
     'session_end',
 ]);
 
+const TurnCompletePayload = z.object({
+    type: z.literal('turn_complete'),
+    turn_index: TurnIndexSchema,
+    user_input_length: z.number().int(),
+    ai_response_length: z.number().int(),
+    pressure_score: PressureScoreSchema,
+    strategy_used: HostStrategySchema,
+}).strict();
+
+const SafetyPayload = z.object({
+    type: z.literal('safety_intervention'),
+    trigger_type: z.string(),
+    confidence: ProbabilitySchema,
+    action_taken: z.string(),
+}).strict();
+
+const RevealPayload = z.object({
+    type: z.literal('reveal_outcome'),
+    plan_id: z.string(),
+    status: z.enum(['revealed', 'vetoed', 'declined']),
+}).strict();
+
+const GenericPayload = z.object({
+    type: z.literal('generic_event'),
+    event_type: AuditEventTypeSchema,
+    data: z.record(z.unknown()),
+}).strict();
+
 export const AuditEventSchema = z.object({
-    id: z.string(),
+    id: z.string().uuid(),
     session_id: z.string(),
-    type: AuditEventTypeSchema,
-    timestamp: z.string(),
-    turn_number: z.number(),
-    act_number: z.number(),
-    payload: z.record(z.unknown()),
-});
-
-export type AuditEvent = z.infer<typeof AuditEventSchema>;
-
-// =============================================================================
-// ORI REQUEST/RESPONSE (Fast Loop API)
-// =============================================================================
-
-export const OriRequestSchema = z.object({
-    session_id: z.string(),
-    user_message: z.string(),
-    turn_id: z.string(),
-});
-
-export type OriRequest = z.infer<typeof OriRequestSchema>;
-
-export const OriResponseSchema = z.object({
-    response: z.string(),
-    jumbotron_cue: JumbotronCueSchema.nullable().optional(),
-    trigger_commercial_break: z.boolean().optional(),
-    silence_mode: z.boolean().optional(),
-});
-
-export type OriResponse = z.infer<typeof OriResponseSchema>;
+    timestamp: TimestampSchema,
+    payload: z.discriminatedUnion('type', [
+        TurnCompletePayload,
+        SafetyPayload,
+        RevealPayload,
+        GenericPayload
+    ]),
+    schema_version: z.literal('3.5'),
+}).strict();
 
 // =============================================================================
-// COMMERCIAL BREAK PAYLOAD
+// 9. COMMERCIAL BREAK PAYLOAD
 // =============================================================================
 
 export const CommercialBreakPayloadSchema = z.object({
@@ -391,7 +460,7 @@ export const CommercialBreakPayloadSchema = z.object({
         ready: z.boolean(),
         need_moment: z.boolean(),
         pivot_requested: z.boolean(),
-    }),
-});
+    }).strict(),
+}).strict();
 
 export type CommercialBreakPayload = z.infer<typeof CommercialBreakPayloadSchema>;

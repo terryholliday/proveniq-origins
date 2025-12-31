@@ -8,10 +8,10 @@
   },
   "priority_order": [
     "SAFETY_FALLBACK",
-    "PHIL_CLARIFY",
-    "OPRAH_EXPAND",
-    "WALTERS_NARROW",
-    "OPRAH_BASE"
+    "LOGIC_CLARIFY",
+    "EMPATHY_EXPAND",
+    "PRECISION_NARROW",
+    "EMPATHY_BASE"
   ],
   "routes": {
     "SAFETY_FALLBACK": {
@@ -22,47 +22,47 @@
         0,
         3
       ],
-      "fallback_route": "OPRAH_BASE"
+      "fallback_route": "EMPATHY_BASE"
     },
-    "PHIL_CLARIFY": {
-      "persona_used": "PHIL_CLARIFY",
+    "LOGIC_CLARIFY": {
+      "persona_used": "LOGIC_CLARIFY",
       "state_machine": "inconsistency_resolution",
       "max_steps": 1,
       "allowed_depth_range": [
         0,
         2
       ],
-      "fallback_route": "OPRAH_BASE"
+      "fallback_route": "EMPATHY_BASE"
     },
-    "OPRAH_EXPAND": {
-      "persona_used": "OPRAH_EXPAND",
+    "EMPATHY_EXPAND": {
+      "persona_used": "EMPATHY_EXPAND",
       "state_machine": "emotional_expansion",
       "max_steps": 2,
       "allowed_depth_range": [
         0,
         3
       ],
-      "fallback_route": "OPRAH_BASE"
+      "fallback_route": "EMPATHY_BASE"
     },
-    "WALTERS_NARROW": {
-      "persona_used": "WALTERS_NARROW",
+    "PRECISION_NARROW": {
+      "persona_used": "PRECISION_NARROW",
       "state_machine": "precision_narrowing",
       "max_steps": 2,
       "allowed_depth_range": [
         0,
         2
       ],
-      "fallback_route": "OPRAH_BASE"
+      "fallback_route": "EMPATHY_BASE"
     },
-    "OPRAH_BASE": {
-      "persona_used": "OPRAH_BASE",
+    "EMPATHY_BASE": {
+      "persona_used": "EMPATHY_BASE",
       "state_machine": null,
       "max_steps": 0,
       "allowed_depth_range": [
         0,
         3
       ],
-      "fallback_route": "OPRAH_BASE"
+      "fallback_route": "EMPATHY_BASE"
     }
   }
 }

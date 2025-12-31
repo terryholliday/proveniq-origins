@@ -97,14 +97,14 @@ export class AuditLogger {
     moveSelected(
         turnNumber: number,
         actNumber: number,
-        move: string,
-        instruction: string,
-        alternates: string[]
+        strategy: string,
+        device: string | undefined,
+        instruction: string
     ): void {
         this.log('move_selected', turnNumber, actNumber, {
-            move,
+            strategy,
+            device,
             instruction,
-            alternates,
         });
     }
 
@@ -114,11 +114,11 @@ export class AuditLogger {
     moveExecuted(
         turnNumber: number,
         actNumber: number,
-        move: string,
+        strategy: string,
         responseLength: number
     ): void {
         this.log('move_executed', turnNumber, actNumber, {
-            move,
+            strategy,
             response_length: responseLength,
         });
     }

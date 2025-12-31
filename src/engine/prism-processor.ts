@@ -8,7 +8,7 @@
  * 4. OUTPUT_GENERATION: Generate response with Persona Texture + Prosody Tags
  */
 
-import { PatternSignal, PatternKind, HostMove, EarpieceFeed } from './schemas';
+import { PatternSignal, PatternKind, HostStrategy, RhetoricalDevice, EarpieceFeed } from './schemas';
 
 // =============================================================================
 // PRISM KERNELS
@@ -544,31 +544,50 @@ export class PRISMProcessor {
         const kernel = this.activeKernel;
         if (!kernel) return {};
 
-        // Map PRISM tactics to Host Moves
-        const moveMap: Record<string, HostMove> = {
+        // Map PRISM tactics to Host Strat/Device
+        const strategyMap: Record<string, { strategy: HostStrategy; device?: RhetoricalDevice }> = {
             // Walters
-            definition_check: 'PIN_TO_SPECIFICS',
-            memory_challenge: 'STATE_AND_STOP',
-            physical_evidence_probe: 'PIN_TO_SPECIFICS',
-            softener_plus_reframe: 'OFFER_FORK',
-            intent_vs_impact: 'BRIDGE_THREAD',
+            definition_check: { strategy: 'PRESS', device: 'DEFINITION_CHALLENGE' },
+            memory_challenge: { strategy: 'PRESS', device: 'TIMELINE_SNAP' }, // "snap them back to the event"
+            physical_evidence_probe: { strategy: 'PRESS', device: 'UTILITARIAN_CHECK' }, // "does the evidence support this?"
+            softener_plus_reframe: { strategy: 'PIVOT', device: 'OFFER_FORK' },
+            intent_vs_impact: { strategy: 'PRESS', device: 'LOGIC_TRAP' },
+            character_vs_action: { strategy: 'PRESS', device: 'AGENCY_BINARY' },
+            direct_quote: { strategy: 'PRESS', device: 'MIRRORING' }, // Aggressive mirroring
+            invitation_to_disclose: { strategy: 'YIELD', device: 'OFFER_FORK' },
+            motive_inquiry: { strategy: 'PRESS', device: 'LOGIC_TRAP' },
+            final_appeal: { strategy: 'WRAP', device: 'FUTURE_LOCK' },
+
             // Winfrey
-            mirror_and_amplify: 'MIRROR_LANGUAGE',
-            intent_validation: 'MIRROR_LANGUAGE',
-            deep_dive: 'RETURN_TO_OPEN_LOOP',
-            safe_space_creation: 'SILENCE',
-            spiritual_reframing: 'STATE_AND_STOP',
+            mirror_and_amplify: { strategy: 'HOLD', device: 'MIRRORING' },
+            intent_validation: { strategy: 'HOLD', device: 'MIRRORING' },
+            deep_dive: { strategy: 'YIELD', device: 'SOMATIC_BRIDGE' },
+            safe_space_creation: { strategy: 'HOLD', device: 'SILENCE_GAP' },
+            spiritual_reframing: { strategy: 'PIVOT', device: 'SPIRITUAL_REFRAME' },
+            open_ended_binary: { strategy: 'YIELD', device: 'AGENCY_BINARY' },
+            metaphor_check: { strategy: 'PRESS', device: 'DEFINITION_CHALLENGE' },
+            validation_and_expansion: { strategy: 'HOLD', device: 'MIRRORING' },
+            non_judgmental_inquiry: { strategy: 'YIELD', device: 'RETURN_TO_OPEN_LOOP' },
+            redemption_arc: { strategy: 'WRAP', device: 'FUTURE_LOCK' },
+
             // McGraw
-            fact_check: 'PIN_TO_SPECIFICS',
-            but_logic: 'UTILITARIAN_CHECK',
-            ownership_demand: 'STATE_AND_STOP',
-            frame_control: 'LIGHT_PRESS',
+            fact_check: { strategy: 'PRESS', device: 'LOGIC_TRAP' },
+            past_behavior_predictor: { strategy: 'PRESS', device: 'TIMELINE_SNAP' },
+            ownership_demand: { strategy: 'PRESS', device: 'AGENCY_BINARY' },
+            external_authority: { strategy: 'PRESS', device: 'UTILITARIAN_CHECK' },
+            but_logic: { strategy: 'PRESS', device: 'LOGIC_TRAP' },
+            definition_challenge: { strategy: 'PRESS', device: 'DEFINITION_CHALLENGE' },
+            frame_control: { strategy: 'PIVOT', device: 'BINARY_FORCING' },
+            utility_check: { strategy: 'PRESS', device: 'UTILITARIAN_CHECK' },
+            logic_gap: { strategy: 'PRESS', device: 'LOGIC_TRAP' },
+            direct_diagnosis: { strategy: 'PRESS', device: 'DEFINITION_CHALLENGE' },
         };
 
-        const move = moveMap[prismResponse.tactic.tactic] || 'MIRROR_LANGUAGE';
+        const mapped = strategyMap[prismResponse.tactic.tactic] || { strategy: 'HOLD', device: 'MIRRORING' };
 
         return {
-            move,
+            required_strategy: mapped.strategy,
+            suggested_device: mapped.device,
             instruction: prismResponse.internalMonologue.strategyPlan,
             tone: kernel === 'WINFREY' ? 'warm_authority'
                 : kernel === 'WALTERS' ? 'skeptical_precision'

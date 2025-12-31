@@ -51,7 +51,7 @@
         "refusal_or_discomfort==true",
         "max_steps_reached==true"
       ],
-      "fallback_route": "OPRAH_BASE"
+      "fallback_route": "EMPATHY_BASE"
     },
     "emotional_expansion": {
       "id": "emotional_expansion",
@@ -132,7 +132,7 @@
         "refusal_or_discomfort==true",
         "max_steps_reached==true"
       ],
-      "fallback_route": "OPRAH_BASE"
+      "fallback_route": "EMPATHY_BASE"
     },
     "inconsistency_resolution": {
       "id": "inconsistency_resolution",
@@ -166,7 +166,7 @@
         "refusal_or_discomfort==true",
         "max_steps_reached==true"
       ],
-      "fallback_route": "OPRAH_BASE"
+      "fallback_route": "EMPATHY_BASE"
     }
   }
 }

@@ -12,7 +12,7 @@ import { Router, Response } from 'express';
 import { requireAiConsent, AuthenticatedRequest } from './auth';
 import { ControlRoom } from '../engine/control-room';
 import { AuditLogger } from '../engine/audit-logger';
-import { EpisodeState, EarpieceFeed, HostMove } from '../engine/schemas';
+import { EpisodeState, EarpieceFeed, HostStrategy } from '../engine/schemas';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -124,9 +124,9 @@ InterviewRoutes.post('/turn', requireAiConsent, async (req: AuthenticatedRequest
         auditLogger.moveSelected(
             turnNumber,
             updatedState.metrics.current_act,
-            feed.move,
-            feed.instruction,
-            feed.alternates.map(a => a.move)
+            feed.required_strategy,
+            feed.suggested_device,
+            feed.instruction
         );
 
         // Generate Ori's response (Fast Loop)
@@ -136,7 +136,7 @@ InterviewRoutes.post('/turn', requireAiConsent, async (req: AuthenticatedRequest
         auditLogger.moveExecuted(
             turnNumber,
             updatedState.metrics.current_act,
-            feed.move,
+            feed.required_strategy,
             oriResponse.length
         );
 
@@ -150,10 +150,16 @@ InterviewRoutes.post('/turn', requireAiConsent, async (req: AuthenticatedRequest
             jumbotron?: { type: string; content: unknown } | null;
             trigger_commercial_break?: boolean;
             status: string;
+            debug_earpiece_feed?: EarpieceFeed;
         } = {
             response: oriResponse,
             status: feed.status,
         };
+
+        // Expose internal state for verification in dev
+        if (process.env.NODE_ENV !== 'production') {
+            response.debug_earpiece_feed = feed;
+        }
 
         // Add jumbotron cue if present
         if (feed.jumbotron_cue) {
@@ -170,9 +176,10 @@ InterviewRoutes.post('/turn', requireAiConsent, async (req: AuthenticatedRequest
 
         res.json(response);
 
-    } catch (error) {
-        console.error('Error processing turn:', error);
-        res.status(500).json({ error: 'Failed to process turn' });
+    } catch (error: any) {
+        console.error('Error processing turn: ' + (error?.message || String(error)));
+        if (error?.stack) console.error(error.stack);
+        res.status(500).json({ error: 'Failed to process turn', details: error?.message });
     }
 });
 
@@ -454,6 +461,10 @@ function getTemperatureForMove(move: HostMove): number {
  * Fallback response generator (no LLM)
  */
 function generateFallbackResponse(feed: EarpieceFeed, userMessage: string): string {
+    if (feed.act === 'Kernel Activation') {
+        return feed.instruction;
+    }
+
     switch (feed.move) {
         case 'SILENCE':
             return '...take your time.';

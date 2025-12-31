@@ -72,6 +72,121 @@ const COOKIE_OPTIONS = {
 
 
 
+
+// ============================================
+// AUTH MIDDLEWARE
+// ============================================
+
+export interface AuthenticatedRequest extends Request {
+  authUser?: {
+    uid: string;
+    email?: string;
+    provider: 'firebase' | 'local';
+    claims?: Record<string, unknown>;
+    aiConsent?: boolean;
+  };
+}
+
+export const requireAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  // 1. Check for cookie (Primary)
+  const cookieToken = req.cookies?.[COOKIE_NAME];
+  if (cookieToken) {
+    const payload = verifyToken(cookieToken);
+    if (payload) {
+      req.authUser = {
+        uid: payload.userId,
+        email: payload.email,
+        provider: 'local',
+      };
+      return next();
+    }
+  }
+
+  // 2. Check for Bearer header (Firebase or fallback)
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+
+    // Try Firebase
+    const firebaseUser = await verifyFirebaseToken(token);
+    if (firebaseUser) {
+      req.authUser = {
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        provider: 'firebase',
+        claims: firebaseUser,
+      };
+      return next();
+    }
+
+    // IMPORTANT: Removed legacy HMAC token verification from header.
+    // If you need legacy support for API tokens, implement a dedicated API key system.
+  }
+
+  return res.status(401).json({ error: 'Authentication required' });
+};
+
+// Middleware to require AI consent
+export const requireAiConsent = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (!req.authUser || !req.authUser.uid) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.authUser.uid },
+      select: { aiConsent: true }
+    });
+
+    if (user?.aiConsent) {
+      req.authUser.aiConsent = true;
+      return next();
+    }
+
+    return res.status(403).json({
+      error: 'AI Consent Required',
+      message: 'You must enable AI processing in your settings to use this feature.'
+    });
+  } catch (error) {
+    console.error('AI Consent check error:', error);
+    return res.status(500).json({ error: 'Failed to verify AI permissions' });
+  }
+};
+
+// Optional auth
+export const optionalAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  const cookieToken = req.cookies?.[COOKIE_NAME];
+  if (cookieToken) {
+    const payload = verifyToken(cookieToken);
+    if (payload) {
+      req.authUser = {
+        uid: payload.userId,
+        email: payload.email,
+        provider: 'local',
+      };
+      return next();
+    }
+  }
+
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+    const firebaseUser = await verifyFirebaseToken(token);
+    if (firebaseUser) {
+      req.authUser = {
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        provider: 'firebase',
+        claims: firebaseUser,
+      };
+      return next();
+    }
+  }
+
+  next();
+};
+
+
 // Google OAuth2 client for authentication
 const getAuthOAuth2Client = () => {
   const clientId = process.env.GOOGLE_DRIVE_CLIENT_ID;
@@ -314,115 +429,3 @@ authRoutes.post('/login', async (req: Request, res: Response) => {
   }
 });
 
-// ============================================
-// AUTH MIDDLEWARE
-// ============================================
-
-export interface AuthenticatedRequest extends Request {
-  authUser?: {
-    uid: string;
-    email?: string;
-    provider: 'firebase' | 'local';
-    claims?: Record<string, unknown>;
-    aiConsent?: boolean;
-  };
-}
-
-export const requireAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  // 1. Check for cookie (Primary)
-  const cookieToken = req.cookies?.[COOKIE_NAME];
-  if (cookieToken) {
-    const payload = verifyToken(cookieToken);
-    if (payload) {
-      req.authUser = {
-        uid: payload.userId,
-        email: payload.email,
-        provider: 'local',
-      };
-      return next();
-    }
-  }
-
-  // 2. Check for Bearer header (Firebase or fallback)
-  const authHeader = req.headers.authorization;
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.slice(7);
-
-    // Try Firebase
-    const firebaseUser = await verifyFirebaseToken(token);
-    if (firebaseUser) {
-      req.authUser = {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        provider: 'firebase',
-        claims: firebaseUser,
-      };
-      return next();
-    }
-
-    // IMPORTANT: Removed legacy HMAC token verification from header.
-    // If you need legacy support for API tokens, implement a dedicated API key system.
-  }
-
-  return res.status(401).json({ error: 'Authentication required' });
-};
-
-// Middleware to require AI consent
-export const requireAiConsent = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  if (!req.authUser || !req.authUser.uid) {
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.authUser.uid },
-      select: { aiConsent: true }
-    });
-
-    if (user?.aiConsent) {
-      req.authUser.aiConsent = true;
-      return next();
-    }
-
-    return res.status(403).json({
-      error: 'AI Consent Required',
-      message: 'You must enable AI processing in your settings to use this feature.'
-    });
-  } catch (error) {
-    console.error('AI Consent check error:', error);
-    return res.status(500).json({ error: 'Failed to verify AI permissions' });
-  }
-};
-
-// Optional auth
-export const optionalAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const cookieToken = req.cookies?.[COOKIE_NAME];
-  if (cookieToken) {
-    const payload = verifyToken(cookieToken);
-    if (payload) {
-      req.authUser = {
-        uid: payload.userId,
-        email: payload.email,
-        provider: 'local',
-      };
-      return next();
-    }
-  }
-
-  const authHeader = req.headers.authorization;
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.slice(7);
-    const firebaseUser = await verifyFirebaseToken(token);
-    if (firebaseUser) {
-      req.authUser = {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        provider: 'firebase',
-        claims: firebaseUser,
-      };
-      return next();
-    }
-  }
-
-  next();
-};
